@@ -1,1 +1,0 @@
-var handlebars = require('handlebars');
