@@ -2,28 +2,37 @@ var dataset =  [
   {
     id: 1,
     taskName: "Task 1",
-    startTime: "01/01/16",
-    endTime: "10/01/16",
+    startDate: new Date(2017, 1, 1),
+    endDate: new Date(2017, 1, 16),
     milestone: false,
-    dependents: [],
+    dependentsId: [], // consider DB relationships and how these might split up into seperate tables.
     status: "Complete"
   },
   {
     id: 2,
     taskName: "Task 2",
-    startTime: "10/01/16",
-    endTime: "20/01/16",
+    startDate: new Date(2017, 1, 12),
+    endDate: new Date(2017, 2, 3),
     milestone: false,
-    dependents: [1],
+    dependentsId: [1],
     status: "In Progress"
   },
   {
     id: 3,
     taskName: "Task 3",
-    startTime: "21/01/16",
-    endTime: "29/01/16",
+    startDate: new Date(2017, 4, 12),
+    endDate: new Date(2017, 4, 20),
     milestone: false,
-    dependents: [1, 2],
+    dependentsId: [1, 2],
+    status: "In Progress"
+  },
+  {
+    id: 4,
+    taskName: "Task 4",
+    startDate: new Date(2017, 5, 11),
+    endDate: new Date(2017, 5, 27),
+    milestone: false,
+    dependentsId: [1, 2],
     status: "In Progress"
   }
 ]
@@ -72,6 +81,7 @@ var graph = d3.select("svg").append("g")
                 "border": "1px blue solid"
               })
 
+
 // create a rectangle for every task
 // set it to somewhere on the axis
 
@@ -83,7 +93,7 @@ graph.selectAll("rect")
     x: function(d, i) { return i * (graphWidth / dataset.length); },
     y: function(d, i) { return (h / dataset.length) * i; },
     width: "200px",
-    height: function(d, i){ return h / dataset.length},
+    height: function(d, i){ return h / dataset.length },
     fill: "blue"
   });
 
@@ -127,13 +137,22 @@ graph.selectAll("line")
     "fill": "none"
   });
 
-// set up x-axis - text labels
+// return date as day-month-year
+
+function dayMonthYear(date){
+  var day = date.getDate()
+  var month = date.getMonth()
+  var year = date.getFullYear()
+  return day + "/" + month + "/" + year
+}
+
+// set up x-axis - text labels //
 
 xAxis.selectAll("text")
   .data(dataset)
   .enter()
   .append("text")
-  .text(function(d) { return d.taskName + " " + d.startTime + " " + d.endTime; })
+  .text(function(d) { return d.taskName + " " + dayMonthYear(d.startDate) + " - " + dayMonthYear(d.endDate) })
   .attr({
     "text-anchor": "start",
     x: 0,
