@@ -38,7 +38,7 @@ function sortTable(info){
 }
 
 // create svg and set dimensions
-
+var graphWidth = 900;
 var w = 1200;
 var h = 600;
 var padding = 2;
@@ -49,15 +49,38 @@ var svg = d3.select("body").append("svg")
               .attr("height", h)
               .style("border", "1px black solid");
 
+var xAxis = d3.select("svg").append("g")
+              .attr({
+                "width": (w / 4) * 1,
+                "height": h,
+                "x": 0,
+                "y": 0
+              })
+              .style({
+                "border": "1px blue solid"
+              })
+
+var graph = d3.select("svg").append("g")
+              .attr({
+                "width": (w / 4) * 3,
+                "height": h,
+                "x": 0,
+                "y": 0,
+                transform: "translate(300, 0)"
+              })
+              .style({
+                "border": "1px blue solid"
+              })
+
 // create a rectangle for every task
 // set it to somewhere on the axis
 
-svg.selectAll("rect")
+graph.selectAll("rect")
   .data(dataset)
   .enter()
   .append("rect")
   .attr({
-    x: function(d, i) { return i * (w / dataset.length); },
+    x: function(d, i) { return i * (graphWidth / dataset.length); },
     y: function(d, i) { return (h / dataset.length) * i; },
     width: "200px",
     height: function(d, i){ return h / dataset.length},
@@ -86,19 +109,36 @@ var view = [1, 2, 3, 4, 5, 6, 7]
 //   }
 // }
 
-svg.selectAll("line")
+graph.selectAll("line")
   .data(view)
   .enter()
   .append("line")
   .attr({
-    "x1": function(d, i){ return (i / 7) * w },
+    "x1": function(d, i){ return (i / 7) * graphWidth },
     "y1": 0,
-    "x2": function(d, i){ return (i / 7) * w },
+    "x2": function(d, i){ return (i / 7) * graphWidth },
     "y2": h,
     width: "1px",
     height: h,
   })
-  .style("stroke-width", 2)
-  .style("stroke", "red")
-  .style("fill", "none");
-  ;
+  .style({
+    "stroke-width": 2,
+    "stroke": "red",
+    "fill": "none"
+  });
+
+// set up x-axis - text labels
+
+xAxis.selectAll("text")
+  .data(dataset)
+  .enter()
+  .append("text")
+  .text(function(d) { return d.taskName + " " + d.startTime + " " + d.endTime; })
+  .attr({
+    "text-anchor": "start",
+    x: 0,
+    y: function(d, i) { return i * ( h / dataset.length ) + 10 },
+    "font-family": "sans-serif",
+    "font-size": 12,
+    "fill": "black"
+  })
