@@ -80,7 +80,7 @@ var w = 1200;
 var h = 600;
 var padding = 2;
 
-function scaleXAxis(minDate, maxDate, startDate){
+function scaleXAxisRect(minDate, maxDate, startDate){
   var xScale = d3.scaleTime()
                   .domain([minDate, maxDate])
                   .range([0, graphWidth])
@@ -96,13 +96,16 @@ function scaleRectWidth(minDate, maxDate, startDate, endDate){
   return xScale(endDate) - xScale(startDate)
 }
 
+var xScale = d3.scaleTime()
+                .domain([minDate, maxDate])
+                .range([0, graphWidth])
 
 var svg = d3.select("body").append("svg")
               .attr("width", w)
               .attr("height", h)
               .style("border", "1px black solid");
 
-var xAxis = d3.select("svg").append("g")
+var yAxis = d3.select("svg").append("g")
               .attrs({
                 "width": (w / 4) * 1,
                 "height": h,
@@ -122,6 +125,13 @@ var graph = d3.select("svg").append("g")
                 "border": "1px blue solid"
               })
 
+// var axis = graph.append("g").call(xAxis)
+//                   .attr("class", "axis")
+//                   .attr("transform", "translate(300, 0)")
+//
+// // 1
+// var xAxis = d3.graph.axis().scale(xScale).orient("bottom");
+
 
 // create a rectangle for every task
 // set it to somewhere on the axis
@@ -131,7 +141,7 @@ graph.selectAll("rect")
   .enter()
   .append("rect")
   .attrs({
-    x: function(d, i) { return scaleXAxis(minDate, maxDate, d.startDate); },
+    x: function(d, i) { return scaleXAxisRect(minDate, maxDate, d.startDate); },
     y: function(d, i) { return (h / dataset.length) * i; },
     width: function(d) { return scaleRectWidth(minDate, maxDate, d.startDate, d.endDate)},
     height: function(d, i){ return h / dataset.length },
@@ -166,6 +176,11 @@ graph.selectAll("line")
     "fill": "none"
   });
 
+
+svg.append("g")
+      .attr("transform", "translate(300, 600)")
+      .call(d3.axisTop(xScale))
+
 // return date as day-month-year
 
 function dayMonthYear(date){
@@ -180,7 +195,7 @@ function dayMonthYear(date){
 
 // set up x-axis - text labels //
 
-xAxis.selectAll("text")
+yAxis.selectAll("text")
   .data(dataset)
   .enter()
   .append("text")
