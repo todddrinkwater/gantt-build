@@ -2,8 +2,8 @@ var dataset =  [
   {
     id: 1,
     taskName: "Task 1",
-    startDate: new Date(2017, 1, 1),
-    endDate: new Date(2017, 1, 16),
+    startDate: new Date(2017, 0, 1),
+    endDate: new Date(2017, 0, 16),
     milestone: false,
     dependentsId: [], // consider DB relationships and how these might split up into seperate tables.
     status: "Complete"
@@ -37,20 +37,55 @@ var dataset =  [
   }
 ]
 
-// create function to map out a table
-function sortTable(info){
-  info.map((dataEntry) => { // map through every element in the info array
-    for (var prop in dataEntry) { // for each property in the object return a row containing the object data
-      console.log(dataEntry[prop]);
-  }
-  })
-}
+//Calculate the spread of the graph
+  // calculate min start dates
+
+  start = []
+
+  dataset.forEach( data => {
+  	start.push(data.startDate)
+  } )
+
+  var minDate = new Date(Math.min.apply(null,start));
+
+
+// calculate max end dates
+
+  end = []
+
+  dataset.forEach( data => {
+    end.push(data.endDate)
+  } )
+
+  var maxDate = new Date(Math.max.apply(null, end));
+
+
+  // calculate max start dates
+  // calculate time difference between two start-end dates
+  // apply each day to y-axis ticks
+
+// // create function to map out a table
+// function sortTable(info){
+//   info.map((dataEntry) => { // map through every element in the info array
+//     for (var prop in dataEntry) { // for each property in the object return a row containing the object data
+//       console.log(dataEntry[prop]);
+//   }
+//   })
+// }
 
 // create svg and set dimensions
 var graphWidth = 900;
 var w = 1200;
 var h = 600;
 var padding = 2;
+
+function scaleXAxis(minDate, maxDate){
+  console.log(minDate)
+  var xScale = d3.scaleTime()
+                  .domain([minDate, maxDate])
+                  .range([0, w])
+
+}
 
 
 var svg = d3.select("body").append("svg")
@@ -59,25 +94,22 @@ var svg = d3.select("body").append("svg")
               .style("border", "1px black solid");
 
 var xAxis = d3.select("svg").append("g")
-              .attr({
+              .attrs({
                 "width": (w / 4) * 1,
                 "height": h,
                 "x": 0,
                 "y": 0
-              })
-              .style({
-                "border": "1px blue solid"
-              })
+              }).styles({"border": "1px blue solid"});
 
 var graph = d3.select("svg").append("g")
-              .attr({
+              .attrs({
                 "width": (w / 4) * 3,
                 "height": h,
                 "x": 0,
                 "y": 0,
                 transform: "translate(300, 0)"
               })
-              .style({
+              .styles({
                 "border": "1px blue solid"
               })
 
@@ -89,26 +121,17 @@ graph.selectAll("rect")
   .data(dataset)
   .enter()
   .append("rect")
-  .attr({
-    x: function(d, i) { return i * (graphWidth / dataset.length); },
+  .attrs({
+    x: function(d, i) { return scaleXAxis(minDate, maxDate); },
     y: function(d, i) { return (h / dataset.length) * i; },
     width: "200px",
     height: function(d, i){ return h / dataset.length },
     fill: "blue"
   });
 
-//calculate chart layout for a year
 
-// function setYear(year){
-  // user inputs year they wish to view
-  // year is input into new Date()
-  // year is scaled out amongst graph
-  // 12 lines must be scaled according to dates/year/month size.
-  // data must also be scaled accordingly.
 
-// }
-//caclulate chart layout for one month
-//calculate chart layout for one week
+
 
 var view = [1, 2, 3, 4, 5, 6, 7]
 
@@ -123,7 +146,7 @@ graph.selectAll("line")
   .data(view)
   .enter()
   .append("line")
-  .attr({
+  .attrs({
     "x1": function(d, i){ return (i / 7) * graphWidth },
     "y1": 0,
     "x2": function(d, i){ return (i / 7) * graphWidth },
@@ -131,7 +154,7 @@ graph.selectAll("line")
     width: "1px",
     height: h,
   })
-  .style({
+  .styles({
     "stroke-width": 2,
     "stroke": "red",
     "fill": "none"
@@ -141,7 +164,7 @@ graph.selectAll("line")
 
 function dayMonthYear(date){
   var day = date.getDate()
-  var month = date.getMonth()
+  var month = date.getMonth() + 1
   var year = date.getFullYear()
   return day + "/" + month + "/" + year
 }
@@ -153,7 +176,7 @@ xAxis.selectAll("text")
   .enter()
   .append("text")
   .text(function(d) { return d.taskName + " " + dayMonthYear(d.startDate) + " - " + dayMonthYear(d.endDate) })
-  .attr({
+  .attrs({
     "text-anchor": "start",
     x: 0,
     y: function(d, i) { return i * ( h / dataset.length ) + 10 },
