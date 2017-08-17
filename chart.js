@@ -3,7 +3,7 @@ var dataset =  [
     id: 1,
     taskName: "Task 1",
     startDate: new Date(2017, 0, 1),
-    endDate: new Date(2017, 0, 16),
+    endDate: new Date(2017, 5, 1),
     milestone: false,
     dependentsId: [], // consider DB relationships and how these might split up into seperate tables.
     status: "Complete"
@@ -88,6 +88,14 @@ function scaleXAxis(minDate, maxDate, startDate){
   return xScale(startDate)
 }
 
+function scaleRectWidth(minDate, maxDate, startDate, endDate){
+  var xScale = d3.scaleTime()
+                  .domain([minDate, maxDate])
+                  .range([0, graphWidth])
+
+  return xScale(endDate) - xScale(startDate)
+}
+
 
 var svg = d3.select("body").append("svg")
               .attr("width", w)
@@ -125,7 +133,7 @@ graph.selectAll("rect")
   .attrs({
     x: function(d, i) { return scaleXAxis(minDate, maxDate, d.startDate); },
     y: function(d, i) { return (h / dataset.length) * i; },
-    width: 200,
+    width: function(d) { return scaleRectWidth(minDate, maxDate, d.startDate, d.endDate)},
     height: function(d, i){ return h / dataset.length },
     fill: "blue"
   });
