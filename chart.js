@@ -30,7 +30,7 @@ var dataset =  [
     id: 4,
     taskName: "Task 4",
     startDate: new Date(2017, 5, 11),
-    endDate: new Date(2017, 5, 27),
+    endDate: new Date(2017, 11, 27),
     milestone: false,
     dependentsId: [1, 2],
     status: "In Progress"
@@ -61,24 +61,11 @@ var dataset =  [
   console.log(maxDate, "maxDate")
 
 
-  // calculate max start dates
-  // calculate time difference between two start-end dates
-  // apply each day to y-axis ticks
-
-// // create function to map out a table
-// function sortTable(info){
-//   info.map((dataEntry) => { // map through every element in the info array
-//     for (var prop in dataEntry) { // for each property in the object return a row containing the object data
-//       console.log(dataEntry[prop]);
-//   }
-//   })
-// }
-
 // create svg and set dimensions
 var graphWidth = 900;
 var w = 1200;
 var h = 600;
-var padding = 2;
+var tableLeft = w / 4;
 
 function scaleXAxisRect(minDate, maxDate, startDate){
   var xScale = d3.scaleTime()
@@ -125,16 +112,6 @@ var graph = d3.select("svg").append("g")
                 "border": "1px blue solid"
               })
 
-// var axis = graph.append("g").call(xAxis)
-//                   .attr("class", "axis")
-//                   .attr("transform", "translate(300, 0)")
-//
-// // 1
-// var xAxis = d3.graph.axis().scale(xScale).orient("bottom");
-
-
-// create a rectangle for every task
-// set it to somewhere on the axis
 
 graph.selectAll("rect")
   .data(dataset)
@@ -149,36 +126,30 @@ graph.selectAll("rect")
   });
 
 
-var view = [1, 2, 3, 4, 5, 6, 7]
+// var view = [1, 2, 3, 4, 5, 6, 7]
 
-// function setView(view){
-//   switch(view){
-//     case "day":
-//       return
-//   }
-// }
 
-graph.selectAll("line")
-  .data(view)
-  .enter()
-  .append("line")
-  .attrs({
-    "x1": function(d, i){ return (i / 7) * graphWidth },
-    "y1": 0,
-    "x2": function(d, i){ return (i / 7) * graphWidth },
-    "y2": h,
-    width: "1px",
-    height: h,
-  })
-  .styles({
-    "stroke-width": 2,
-    "stroke": "red",
-    "fill": "none"
-  });
+// graph.selectAll("line")
+//   .data(view)
+//   .enter()
+//   .append("line")
+//   .attrs({
+//     "x1": function(d, i){ return (i / 7) * graphWidth },
+//     "y1": 0,
+//     "x2": function(d, i){ return (i / 7) * graphWidth },
+//     "y2": h,
+//     width: "1px",
+//     height: h,
+//   })
+//   .styles({
+//     "stroke-width": 2,
+//     "stroke": "red",
+//     "fill": "none"
+//   });
 
 
 svg.append("g")
-      .attr("transform", "translate(300, 600)")
+      .attr("transform", "translate(" + tableLeft + ", 600)")
       .call(d3.axisTop(xScale))
 
 // return date as day-month-year
