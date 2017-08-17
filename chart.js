@@ -80,15 +80,12 @@ var w = 1200;
 var h = 600;
 var padding = 2;
 
-function scaleXAxis(minDate, maxDate){
-  console.log(minDate)
-  //var d3minDate =
+function scaleXAxis(minDate, maxDate, startDate){
   var xScale = d3.scaleTime()
                   .domain([minDate, maxDate])
-                  .range([0, w])
+                  .range([0, graphWidth])
 
-  console.log(xScale.invert(1200))
-
+  return xScale(startDate)
 }
 
 
@@ -126,15 +123,12 @@ graph.selectAll("rect")
   .enter()
   .append("rect")
   .attrs({
-    x: function(d, i) { return scaleXAxis(minDate, maxDate); },
+    x: function(d, i) { return scaleXAxis(minDate, maxDate, d.startDate); },
     y: function(d, i) { return (h / dataset.length) * i; },
-    width: "200px",
+    width: 200,
     height: function(d, i){ return h / dataset.length },
     fill: "blue"
   });
-
-
-
 
 
 var view = [1, 2, 3, 4, 5, 6, 7]
