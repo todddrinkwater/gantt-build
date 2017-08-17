@@ -58,6 +58,7 @@ var dataset =  [
   } )
 
   var maxDate = new Date(Math.max.apply(null, end));
+  console.log(maxDate, "maxDate")
 
 
   // calculate max start dates
@@ -81,9 +82,12 @@ var padding = 2;
 
 function scaleXAxis(minDate, maxDate){
   console.log(minDate)
+  //var d3minDate =
   var xScale = d3.scaleTime()
                   .domain([minDate, maxDate])
                   .range([0, w])
+
+  console.log(xScale.invert(1200))
 
 }
 
@@ -168,6 +172,9 @@ function dayMonthYear(date){
   var year = date.getFullYear()
   return day + "/" + month + "/" + year
 }
+
+
+
 
 // set up x-axis - text labels //
 
