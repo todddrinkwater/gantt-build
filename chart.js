@@ -1,4 +1,4 @@
-var dataset =  [
+dataset =  [
   {
     id: 1,
     taskName: "Task 1",
@@ -49,25 +49,8 @@ var dataset =  [
 //Calculate the spread of the graph
   // calculate min start dates
 
-  start = []
-
-  dataset.forEach( data => {
-  	start.push(data.startDate)
-  } )
-
-  var minDate = new Date(Math.min.apply(null,start));
-
-
-// calculate max end dates
-
-  end = []
-
-  dataset.forEach( data => {
-    end.push(data.endDate)
-  } )
-
-  var maxDate = new Date(Math.max.apply(null, end));
-  console.log(maxDate, "maxDate")
+var minDate = d3.extent(dataset, (d) => { return d.startDate })[0]
+var maxDate = d3.extent(dataset, (d) => { return d.endDate })[1]
 
 
 // create svg and set dimensions
@@ -76,27 +59,29 @@ var w = 1200;
 var h = 600;
 var tableLeft = w / 4;
 
+var today = new Date();
+var dd = today.getDate();
+
+var year = today.getFullYear();
+var month = today.getMonth();
+var day = today.getDate();
+var c = new Date(year + 1, month, day)
+//console.log(c);
+
 
 //Scale xAxis
-function scaleXAxisRect(minDate, maxDate, startDate){
-  var xScale = d3.scaleTime()
-                  .domain([minDate, maxDate])
-                  .range([0, graphWidth])
+var xScale = d3.scaleTime()
+                .domain([minDate, maxDate])
+                .range([0, graphWidth])
 
+
+function scaleXAxisRect(startDate){
   return xScale(startDate)
 }
 
 function scaleRectWidth(minDate, maxDate, startDate, endDate){
-  var xScale = d3.scaleTime()
-                  .domain([minDate, maxDate])
-                  .range([0, graphWidth])
-
   return xScale(endDate) - xScale(startDate)
 }
-
-var xScale = d3.scaleTime()
-                .domain([minDate, maxDate])
-                .range([0, graphWidth])
 
 var svg = d3.select("body").append("svg")
               .attr("width", w)
@@ -122,7 +107,7 @@ var rect = graph.selectAll("rect")
               .enter()
               .append("rect")
               .attrs({
-                x: function(d, i) { return scaleXAxisRect(minDate, maxDate, d.startDate); },
+                x: function(d, i) { return scaleXAxisRect(d.startDate); },
                 y: function(d, i) { return (h / dataset.length) * i; },
                 width: function(d) { return scaleRectWidth(minDate, maxDate, d.startDate, d.endDate)},
                 height: function(d, i){ return h / dataset.length },
@@ -192,9 +177,7 @@ function dayMonthYear(date){
   return day + "/" + month + "/" + year
 }
 
-
 // set up x-axis - text labels //
-
 yAxis.selectAll("text")
   .data(dataset)
   .enter()
@@ -203,21 +186,22 @@ yAxis.selectAll("text")
   .attrs({
     "text-anchor": "start",
     x: 0,
-    y: function(d, i) { return i * ( h / dataset.length ) + 10 },
+    y: function(d, i) { return i * ( h / dataset.length ) + 12 },
     "font-family": "sans-serif",
-    "font-size": 12,
+    "font-size": 16,
     "fill": "black"
   })
 
 function zoom() {
-    // re-scale x axis during zoom; ref [2]
+    // re-scale x axis during zoom
    xAxis.transition()
-         .duration(50)
+         .duration(0)
          .call(d3.axisTop(xScale).scale(d3.event.transform.rescaleX(xScale)));
 
-
-   // re-draw circles using new x-axis scale; ref [3]
+   // re-draw rectangles using new x-axis scale
    var new_xScale = d3.event.transform.rescaleX(xScale);
-   rect.attr("x", function(d) { return  new_xScale(d.startDate); });
+   rect
+    .attr("x", function(d) { return  new_xScale(d.startDate) })
+    .attr("width", function(d) { return new_xScale(d.endDate) - new_xScale(d.startDate) });
 
 }
