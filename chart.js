@@ -34,6 +34,15 @@ var dataset =  [
     milestone: false,
     dependentsId: [1, 2],
     status: "In Progress"
+  },
+  {
+    id: 5,
+    taskName: "Task 5",
+    startDate: new Date(2018, 5, 11),
+    endDate: new Date(2018, 11, 27),
+    milestone: false,
+    dependentsId: [1, 2],
+    status: "In Progress"
   }
 ]
 
@@ -67,8 +76,6 @@ var w = 1200;
 var h = 600;
 var tableLeft = w / 4;
 
-//Set zoom behaviour
-// var zoom = d3.zoom()
 
 //Scale xAxis
 function scaleXAxisRect(minDate, maxDate, startDate){
@@ -95,10 +102,7 @@ var svg = d3.select("body").append("svg")
               .attr("width", w)
               .attr("height", h)
               .style("border", "1px black solid")
-              .call(d3.zoom().on("zoom", zoom));;
-
-
-
+              .call(d3.zoom().on("zoom", zoom));
 
 var graph = d3.select("svg").append("g")
               .attrs({
@@ -111,13 +115,6 @@ var graph = d3.select("svg").append("g")
               .styles({
                 "border": "1px blue solid"
               })
-
- //              .call(d3.zoom().on("zoom", function () {
- //    graph.attr("transform", d3.zoomIdentity.translate(100, 0).scale(1))
- // })).append("g")
-
-              //.call(d3.zoom().on("zoom", zoomed));
-
 
 
 var rect = graph.selectAll("rect")
@@ -132,19 +129,31 @@ var rect = graph.selectAll("rect")
                 fill: "blue"
               });
 
-              var yAxis = d3.select("svg").append("g")
-                            .attrs({
-                              "width": (w / 4) * 1,
-                              "height": h,
-                              "x": 0,
-                              "y": 0
-                            })
-                            .styles({"border": "1px blue solid"});
+var yAxisBackground = d3.select("svg").append("rect")
+            .attrs({
+              "width": (w / 4) * 1,
+              "height": h,
+              "x": 0,
+              "y": 0
+            })
+            .styles({
+              "fill": "white",
+              "stroke": "rgb(0,0,0)"
+            })
 
-  // var zoom = d3.zoom()
-  //     .scaleExtent([1 / 4, 8])
-  //     .translateExtent([[-width, -Infinity], [2 * width, Infinity]])
-  //     .on("zoom", zoomed);
+
+var yAxis = d3.select("svg").append("g")
+            .attrs({
+              "class": "yAxis",
+              "width": (w / 4) * 1,
+              "height": h,
+              "x": 0,
+              "y": 0
+            })
+            .styles({
+              "border": "1px blue solid"
+          });
+
 
 
 // var view = [1, 2, 3, 4, 5, 6, 7]
