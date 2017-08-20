@@ -59,7 +59,6 @@ var w = 1200;
 var h = 600;
 var tableLeft = w / 4;
 
-
 var today = new Date();
 var dd = today.getDate();
 
@@ -70,9 +69,7 @@ var c = new Date(year + 1, month, day)
 //console.log(c);
 
 
-
 //Scale xAxis
-
 var xScale = d3.scaleTime()
                 .domain([minDate, maxDate])
                 .range([0, graphWidth])
@@ -83,10 +80,6 @@ function scaleXAxisRect(startDate){
 }
 
 function scaleRectWidth(minDate, maxDate, startDate, endDate){
-  var xScale = d3.scaleTime()
-                  .domain([minDate, maxDate])
-                  .range([0, graphWidth])
-
   return xScale(endDate) - xScale(startDate)
 }
 
