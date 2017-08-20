@@ -34,6 +34,15 @@ var dataset =  [
     milestone: false,
     dependentsId: [1, 2],
     status: "In Progress"
+  },
+  {
+    id: 5,
+    taskName: "Task 5",
+    startDate: new Date(2018, 5, 11),
+    endDate: new Date(2018, 11, 27),
+    milestone: false,
+    dependentsId: [1, 2],
+    status: "In Progress"
   }
 ]
 
@@ -67,6 +76,8 @@ var w = 1200;
 var h = 600;
 var tableLeft = w / 4;
 
+
+//Scale xAxis
 function scaleXAxisRect(minDate, maxDate, startDate){
   var xScale = d3.scaleTime()
                   .domain([minDate, maxDate])
@@ -90,15 +101,8 @@ var xScale = d3.scaleTime()
 var svg = d3.select("body").append("svg")
               .attr("width", w)
               .attr("height", h)
-              .style("border", "1px black solid");
-
-var yAxis = d3.select("svg").append("g")
-              .attrs({
-                "width": (w / 4) * 1,
-                "height": h,
-                "x": 0,
-                "y": 0
-              }).styles({"border": "1px blue solid"});
+              .style("border", "1px black solid")
+              .call(d3.zoom().on("zoom", zoom));
 
 var graph = d3.select("svg").append("g")
               .attrs({
@@ -113,17 +117,43 @@ var graph = d3.select("svg").append("g")
               })
 
 
-graph.selectAll("rect")
-  .data(dataset)
-  .enter()
-  .append("rect")
-  .attrs({
-    x: function(d, i) { return scaleXAxisRect(minDate, maxDate, d.startDate); },
-    y: function(d, i) { return (h / dataset.length) * i; },
-    width: function(d) { return scaleRectWidth(minDate, maxDate, d.startDate, d.endDate)},
-    height: function(d, i){ return h / dataset.length },
-    fill: "blue"
-  });
+var rect = graph.selectAll("rect")
+              .data(dataset)
+              .enter()
+              .append("rect")
+              .attrs({
+                x: function(d, i) { return scaleXAxisRect(minDate, maxDate, d.startDate); },
+                y: function(d, i) { return (h / dataset.length) * i; },
+                width: function(d) { return scaleRectWidth(minDate, maxDate, d.startDate, d.endDate)},
+                height: function(d, i){ return h / dataset.length },
+                fill: "blue"
+              });
+
+var yAxisBackground = d3.select("svg").append("rect")
+            .attrs({
+              "width": (w / 4) * 1,
+              "height": h,
+              "x": 0,
+              "y": 0
+            })
+            .styles({
+              "fill": "white",
+              "stroke": "rgb(0,0,0)"
+            })
+
+
+var yAxis = d3.select("svg").append("g")
+            .attrs({
+              "class": "yAxis",
+              "width": (w / 4) * 1,
+              "height": h,
+              "x": 0,
+              "y": 0
+            })
+            .styles({
+              "border": "1px blue solid"
+          });
+
 
 
 // var view = [1, 2, 3, 4, 5, 6, 7]
@@ -148,8 +178,9 @@ graph.selectAll("rect")
 //   });
 
 
-svg.append("g")
-      .attr("transform", "translate(" + tableLeft + ", 600)")
+
+xAxis = graph.append("g")
+      .attr("transform", "translate(0, 600)")
       .call(d3.axisTop(xScale))
 
 // return date as day-month-year
@@ -160,8 +191,6 @@ function dayMonthYear(date){
   var year = date.getFullYear()
   return day + "/" + month + "/" + year
 }
-
-
 
 
 // set up x-axis - text labels //
@@ -179,3 +208,16 @@ yAxis.selectAll("text")
     "font-size": 12,
     "fill": "black"
   })
+
+function zoom() {
+    // re-scale x axis during zoom; ref [2]
+   xAxis.transition()
+         .duration(50)
+         .call(d3.axisTop(xScale).scale(d3.event.transform.rescaleX(xScale)));
+
+
+   // re-draw circles using new x-axis scale; ref [3]
+   var new_xScale = d3.event.transform.rescaleX(xScale);
+   rect.attr("x", function(d) { return  new_xScale(d.startDate); });
+
+}
