@@ -67,6 +67,10 @@ var w = 1200;
 var h = 600;
 var tableLeft = w / 4;
 
+//Set zoom behaviour
+// var zoom = d3.zoom()
+
+//Scale xAxis
 function scaleXAxisRect(minDate, maxDate, startDate){
   var xScale = d3.scaleTime()
                   .domain([minDate, maxDate])
@@ -90,15 +94,11 @@ var xScale = d3.scaleTime()
 var svg = d3.select("body").append("svg")
               .attr("width", w)
               .attr("height", h)
-              .style("border", "1px black solid");
+              .style("border", "1px black solid")
+              .call(d3.zoom().on("zoom", zoom));;
 
-var yAxis = d3.select("svg").append("g")
-              .attrs({
-                "width": (w / 4) * 1,
-                "height": h,
-                "x": 0,
-                "y": 0
-              }).styles({"border": "1px blue solid"});
+
+
 
 var graph = d3.select("svg").append("g")
               .attrs({
@@ -112,18 +112,39 @@ var graph = d3.select("svg").append("g")
                 "border": "1px blue solid"
               })
 
+ //              .call(d3.zoom().on("zoom", function () {
+ //    graph.attr("transform", d3.zoomIdentity.translate(100, 0).scale(1))
+ // })).append("g")
 
-graph.selectAll("rect")
-  .data(dataset)
-  .enter()
-  .append("rect")
-  .attrs({
-    x: function(d, i) { return scaleXAxisRect(minDate, maxDate, d.startDate); },
-    y: function(d, i) { return (h / dataset.length) * i; },
-    width: function(d) { return scaleRectWidth(minDate, maxDate, d.startDate, d.endDate)},
-    height: function(d, i){ return h / dataset.length },
-    fill: "blue"
-  });
+              //.call(d3.zoom().on("zoom", zoomed));
+
+
+
+var rect = graph.selectAll("rect")
+              .data(dataset)
+              .enter()
+              .append("rect")
+              .attrs({
+                x: function(d, i) { return scaleXAxisRect(minDate, maxDate, d.startDate); },
+                y: function(d, i) { return (h / dataset.length) * i; },
+                width: function(d) { return scaleRectWidth(minDate, maxDate, d.startDate, d.endDate)},
+                height: function(d, i){ return h / dataset.length },
+                fill: "blue"
+              });
+
+              var yAxis = d3.select("svg").append("g")
+                            .attrs({
+                              "width": (w / 4) * 1,
+                              "height": h,
+                              "x": 0,
+                              "y": 0
+                            })
+                            .styles({"border": "1px blue solid"});
+
+  // var zoom = d3.zoom()
+  //     .scaleExtent([1 / 4, 8])
+  //     .translateExtent([[-width, -Infinity], [2 * width, Infinity]])
+  //     .on("zoom", zoomed);
 
 
 // var view = [1, 2, 3, 4, 5, 6, 7]
@@ -148,8 +169,9 @@ graph.selectAll("rect")
 //   });
 
 
-svg.append("g")
-      .attr("transform", "translate(" + tableLeft + ", 600)")
+
+xAxis = graph.append("g")
+      .attr("transform", "translate(0, 600)")
       .call(d3.axisTop(xScale))
 
 // return date as day-month-year
@@ -160,8 +182,6 @@ function dayMonthYear(date){
   var year = date.getFullYear()
   return day + "/" + month + "/" + year
 }
-
-
 
 
 // set up x-axis - text labels //
@@ -179,3 +199,16 @@ yAxis.selectAll("text")
     "font-size": 12,
     "fill": "black"
   })
+
+function zoom() {
+    // re-scale x axis during zoom; ref [2]
+   xAxis.transition()
+         .duration(50)
+         .call(d3.axisTop(xScale).scale(d3.event.transform.rescaleX(xScale)));
+
+
+   // re-draw circles using new x-axis scale; ref [3]
+   var new_xScale = d3.event.transform.rescaleX(xScale);
+   rect.attr("x", function(d) { return  new_xScale(d.startDate); });
+
+}
