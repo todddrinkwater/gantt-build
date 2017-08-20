@@ -43,6 +43,51 @@ dataset =  [
     milestone: false,
     dependentsId: [1, 2],
     status: "In Progress"
+  },
+  {
+    id: 6,
+    taskName: "Task 6",
+    startDate: new Date(2017, 11, 1),
+    endDate: new Date(2017, 11, 20),
+    milestone: false,
+    dependentsId: [], // consider DB relationships and how these might split up into seperate tables.
+    status: "Complete"
+  },
+  {
+    id: 7,
+    taskName: "Task 7",
+    startDate: new Date(2018, 0, 1),
+    endDate: new Date(2018, 2, 3),
+    milestone: false,
+    dependentsId: [1],
+    status: "In Progress"
+  },
+  {
+    id: 8,
+    taskName: "Task 8",
+    startDate: new Date(2018, 2, 1),
+    endDate: new Date(2018, 3, 20),
+    milestone: false,
+    dependentsId: [1, 2],
+    status: "In Progress"
+  },
+  {
+    id: 9,
+    taskName: "Task 9",
+    startDate: new Date(2018, 3, 01),
+    endDate: new Date(2018, 4, 27),
+    milestone: false,
+    dependentsId: [1, 2],
+    status: "In Progress"
+  },
+  {
+    id: 10,
+    taskName: "Task 10",
+    startDate: new Date(2018, 3, 11),
+    endDate: new Date(2018, 5, 27),
+    milestone: false,
+    dependentsId: [1, 2],
+    status: "In Progress"
   }
 ]
 
@@ -87,7 +132,7 @@ var svg = d3.select("body").append("svg")
               .attr("width", w)
               .attr("height", h)
               .style("border", "1px black solid")
-              .call(d3.zoom().on("zoom", zoom));
+
 
 var graph = d3.select("svg").append("g")
               .attrs({
@@ -100,7 +145,19 @@ var graph = d3.select("svg").append("g")
               .styles({
                 "border": "1px blue solid"
               })
+              .call(d3.zoom().on("zoom", zoom));
 
+// var ganttBackground = graph.select("g").append("rect")
+//               .attrs({
+//                 "width": (w / 4) * 3,
+//                 "height": h,
+//                 "x": 0,
+//                 "y": 0
+//               })
+//                 .styles({
+//                 "fill": "white",
+//                 "stroke": "rgb(4,0,0)"
+//               }).call(d3.zoom().on("zoom", zoom));
 
 var rect = graph.selectAll("rect")
               .data(dataset)
@@ -108,11 +165,20 @@ var rect = graph.selectAll("rect")
               .append("rect")
               .attrs({
                 x: function(d, i) { return scaleXAxisRect(d.startDate); },
-                y: function(d, i) { return (h / dataset.length) * i; },
+                y: function(d, i) { return 75 * i; },
                 width: function(d) { return scaleRectWidth(minDate, maxDate, d.startDate, d.endDate)},
-                height: function(d, i){ return h / dataset.length },
-                fill: "blue"
-              });
+                height: function(d, i){ return 75 },
+                fill: "rgb(124, 144, 175)",
+                "stroke":"rgb(64, 87, 124)",
+                "stroke-width":"5",
+                "rx": "20px",
+                "ry": "20px"
+              })
+              .styles({
+                "border-radius": "20px"
+              })
+
+
 
 var yAxisBackground = d3.select("svg").append("rect")
             .attrs({
@@ -124,7 +190,7 @@ var yAxisBackground = d3.select("svg").append("rect")
             .styles({
               "fill": "white",
               "stroke": "rgb(0,0,0)"
-            })
+            }).call(d3.zoom().on("zoom", yZoom));
 
 
 var yAxis = d3.select("svg").append("g")
@@ -137,7 +203,7 @@ var yAxis = d3.select("svg").append("g")
             })
             .styles({
               "border": "1px blue solid"
-          });
+          }).call(d3.zoom().on("zoom", yZoom));
 
 
 
@@ -185,8 +251,8 @@ yAxis.selectAll("text")
   .text(function(d) { return d.taskName + " " + dayMonthYear(d.startDate) + " - " + dayMonthYear(d.endDate) })
   .attrs({
     "text-anchor": "start",
-    x: 0,
-    y: function(d, i) { return i * ( h / dataset.length ) + 12 },
+    x: 20,
+    y: function(d, i) { return i * 75 + 40},
     "font-family": "sans-serif",
     "font-size": 16,
     "fill": "black"
@@ -201,7 +267,27 @@ function zoom() {
    // re-draw rectangles using new x-axis scale
    var new_xScale = d3.event.transform.rescaleX(xScale);
    rect
-    .attr("x", function(d) { return  new_xScale(d.startDate) })
-    .attr("width", function(d) { return new_xScale(d.endDate) - new_xScale(d.startDate) });
+    .attr("x", function(d) { return new_xScale(d.startDate) })
+    .attr("width", function(d) { return new_xScale(d.endDate) - new_xScale(d.startDate) })
 
+    yAxis.transition()
+      .duration(0)
+      .call(yAxis).scale(d3.event.transform.rescaleY(1))
+}
+
+function yZoom() {
+  //   // re-scale x axis during zoom
+  //  xAxis.transition()
+  //        .duration(0)
+  //        .call(d3.axisTop(xScale).scale(d3.event.transform.rescaleX(xScale)));
+   //
+  //  // re-draw rectangles using new x-axis scale
+  //  var new_xScale = d3.event.transform.rescaleX(xScale);
+  //  rect
+  //   .attr("x", function(d) { return new_xScale(d.startDate) })
+  //   .attr("width", function(d) { return new_xScale(d.endDate) - new_xScale(d.startDate) })
+   //
+  //   yAxis.transition()
+  //     .duration(0)
+  //     .call(yAxis).scale(d3.event.transform.rescaleY(1))
 }
