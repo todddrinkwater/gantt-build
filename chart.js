@@ -83,10 +83,6 @@ function scaleRectWidth(minDate, maxDate, startDate, endDate){
   return xScale(endDate) - xScale(startDate)
 }
 
-
-
-
-
 var svg = d3.select("body").append("svg")
               .attr("width", w)
               .attr("height", h)
@@ -204,6 +200,8 @@ function zoom() {
 
    // re-draw rectangles using new x-axis scale
    var new_xScale = d3.event.transform.rescaleX(xScale);
-   rect.attr("x", function(d) { return  new_xScale(d.startDate); });
+   rect
+    .attr("x", function(d) { return  new_xScale(d.startDate) })
+    .attr("width", function(d) { return new_xScale(d.endDate) - new_xScale(d.startDate) });
 
 }
