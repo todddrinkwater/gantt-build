@@ -97,6 +97,8 @@ dataset =  [
 var minDate = d3.extent(dataset, (d) => { return d.startDate })[0]
 var maxDate = d3.extent(dataset, (d) => { return d.endDate })[1]
 
+var maxTaskNumberId = d3.extent(dataset, (d) => { return d.id } )[1]
+
 
 // create svg and set dimensions
 var graphWidth = 900;
@@ -119,6 +121,14 @@ var xScale = d3.scaleTime()
                 .domain([minDate, maxDate])
                 .range([0, graphWidth])
 
+var yPan = 0;
+var yMin = (-h / 2);
+var yMAx = (h / 2);
+
+var yScale = d3.scaleLinear()
+                .domain([1, 10])
+                .range([50, 550])
+
 
 function scaleXAxisRect(startDate){
   return xScale(startDate)
@@ -126,6 +136,10 @@ function scaleXAxisRect(startDate){
 
 function scaleRectWidth(minDate, maxDate, startDate, endDate){
   return xScale(endDate) - xScale(startDate)
+}
+
+function scaleYAxis(taskId){
+  return yScale(taskId)
 }
 
 var svg = d3.select("body").append("svg")
@@ -147,17 +161,6 @@ var graph = d3.select("svg").append("g")
               })
               .call(d3.zoom().on("zoom", zoom));
 
-// var ganttBackground = graph.select("g").append("rect")
-//               .attrs({
-//                 "width": (w / 4) * 3,
-//                 "height": h,
-//                 "x": 0,
-//                 "y": 0
-//               })
-//                 .styles({
-//                 "fill": "white",
-//                 "stroke": "rgb(4,0,0)"
-//               }).call(d3.zoom().on("zoom", zoom));
 
 var rect = graph.selectAll("rect")
               .data(dataset)
@@ -165,9 +168,9 @@ var rect = graph.selectAll("rect")
               .append("rect")
               .attrs({
                 x: function(d, i) { return scaleXAxisRect(d.startDate); },
-                y: function(d, i) { return 75 * i; },
+                y: function(d, i) { return scaleYAxis(d.id) - 35; },
                 width: function(d) { return scaleRectWidth(minDate, maxDate, d.startDate, d.endDate)},
-                height: function(d, i){ return 75 },
+                height: function(d, i){ return 50 },
                 fill: "rgb(124, 144, 175)",
                 "stroke":"rgb(64, 87, 124)",
                 "stroke-width":"5",
@@ -190,7 +193,7 @@ var yAxisBackground = d3.select("svg").append("rect")
             .styles({
               "fill": "white",
               "stroke": "rgb(0,0,0)"
-            }).call(d3.zoom().on("zoom", yZoom));
+            });
 
 
 var yAxis = d3.select("svg").append("g")
@@ -203,31 +206,7 @@ var yAxis = d3.select("svg").append("g")
             })
             .styles({
               "border": "1px blue solid"
-          }).call(d3.zoom().on("zoom", yZoom));
-
-
-
-// var view = [1, 2, 3, 4, 5, 6, 7]
-
-
-// graph.selectAll("line")
-//   .data(view)
-//   .enter()
-//   .append("line")
-//   .attrs({
-//     "x1": function(d, i){ return (i / 7) * graphWidth },
-//     "y1": 0,
-//     "x2": function(d, i){ return (i / 7) * graphWidth },
-//     "y2": h,
-//     width: "1px",
-//     height: h,
-//   })
-//   .styles({
-//     "stroke-width": 2,
-//     "stroke": "red",
-//     "fill": "none"
-//   });
-
+          })
 
 
 xAxis = graph.append("g")
@@ -244,19 +223,21 @@ function dayMonthYear(date){
 }
 
 // set up x-axis - text labels //
-yAxis.selectAll("text")
-  .data(dataset)
-  .enter()
-  .append("text")
-  .text(function(d) { return d.taskName + " " + dayMonthYear(d.startDate) + " - " + dayMonthYear(d.endDate) })
-  .attrs({
-    "text-anchor": "start",
-    x: 20,
-    y: function(d, i) { return i * 75 + 40},
-    "font-family": "sans-serif",
-    "font-size": 16,
-    "fill": "black"
-  })
+var taskInfo = yAxis.selectAll("text")
+    .data(dataset)
+    .enter()
+    .append("text")
+    .text(function(d) { return d.taskName + " " + dayMonthYear(d.startDate) + " - " + dayMonthYear(d.endDate) })
+    .attrs({
+      "text-anchor": "start",
+      x: 20,
+      y: function(d, i) { return scaleYAxis(d.id) },
+      "font-family": "sans-serif",
+      "font-size": 16,
+      "fill": "black",
+      width: w / 4,
+      height: 75
+    })
 
 function zoom() {
     // re-scale x axis during zoom
@@ -264,30 +245,31 @@ function zoom() {
          .duration(0)
          .call(d3.axisTop(xScale).scale(d3.event.transform.rescaleX(xScale)));
 
-   // re-draw rectangles using new x-axis scale
+
+   // re-draw rectangles using new x and y axis scale
    var new_xScale = d3.event.transform.rescaleX(xScale);
+   var new_yScale = d3.event.transform.rescaleY(yScale);
+
    rect
     .attr("x", function(d) { return new_xScale(d.startDate) })
+    //.attr("y", function(d) { return new_yScale(d.id) - 35})
     .attr("width", function(d) { return new_xScale(d.endDate) - new_xScale(d.startDate) })
 
-    yAxis.transition()
-      .duration(0)
-      .call(yAxis).scale(d3.event.transform.rescaleY(1))
+//   taskInfo
+//     .attr("y", function(d) { return new_yScale(d.id) })
 }
 
-function yZoom() {
-  //   // re-scale x axis during zoom
-  //  xAxis.transition()
-  //        .duration(0)
-  //        .call(d3.axisTop(xScale).scale(d3.event.transform.rescaleX(xScale)));
-   //
-  //  // re-draw rectangles using new x-axis scale
-  //  var new_xScale = d3.event.transform.rescaleX(xScale);
-  //  rect
-  //   .attr("x", function(d) { return new_xScale(d.startDate) })
-  //   .attr("width", function(d) { return new_xScale(d.endDate) - new_xScale(d.startDate) })
-   //
-  //   yAxis.transition()
-  //     .duration(0)
-  //     .call(yAxis).scale(d3.event.transform.rescaleY(1))
+/* User Registration */
+
+function registerNewUser(e){
+  var form = e.target.elements
+  e.preventDefault(e)
+  var newTask = {
+      taskName: form.taskName,
+      startDate: form.startDate,
+      endDate: form.endDate,
+      milestone: form.mileStone,
+      dependentsId: form.dependents // consider DB relationships and how these might split up into seperate tables.
+  }
+//  addNewTask(newTask)
 }
