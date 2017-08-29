@@ -26,10 +26,9 @@ dataset =  [
 // })
 
 function processDates(dates, startOrEndDate){
-  console.log(dates);
   var dateArr = []
   dates.map( (entry) => {
-    if(startorEndDate = "start"){
+    if(startOrEndDate === "start"){
       entry.tasks.map((task) => { dateArr.push(task.startDate); })
     }
     else {
@@ -37,6 +36,14 @@ function processDates(dates, startOrEndDate){
     }
   })
   return dateArr
+}
+
+function countTasks(data){
+  var tasksArr = []
+  data.map( (entry) => {
+      entry.tasks.map((task) => { tasksArr.push(task); })
+  })
+  return tasksArr.length
 }
 
 //Calculate the spread of the graph
@@ -49,94 +56,94 @@ var minDate = d3.extent(getStartDates, (d) => { return d })[0]
 var maxDate = d3.extent(getEndDates, (d) => { return d })[1]
 
 
-console.log(minDate);
-console.log(maxDate);
-// var maxTaskNumberId = d3.extent(dataset, (d) => { return d.id } )[1]
-//
-//
+var numOfGroupTasks = d3.extent(dataset, (d) => { return d.taskGroupId } )[1]
+var numOfSingleTasks = countTasks(dataset);
+
+
 // // create svg and set dimensions
-// var graphWidth = 900;
-// var w = 1200;
-// var h = 600;
-// var tableLeft = w / 4;
+var graphWidth = 900;
+var w = 1200;
+var h = 600;
+var tableLeft = w / 4;
 //
-// var today = new Date();
-// var dd = today.getDate();
-//
-// var year = today.getFullYear();
-// var month = today.getMonth();
-// var day = today.getDate();
-// var c = new Date(year + 1, month, day)
-// //console.log(c);
-//
-//
-// //Scale xAxis
-// var xScale = d3.scaleTime()
-//                 .domain([minDate, maxDate])
-//                 .range([0, graphWidth])
-//
+var today = new Date();
+var dd = today.getDate(); // unused?
+
+var year = today.getFullYear();
+var month = today.getMonth();
+var day = today.getDate();
+var c = new Date(year + 1, month, day)
+//console.log(c);
+
+
+//Scale xAxis
+var xScale = d3.scaleTime()
+                .domain([minDate, maxDate])
+                .range([0, graphWidth])
+
 // var yPan = 0;
 // var yMin = (-h / 2);
 // var yMAx = (h / 2);
 //
-// var yScale = d3.scaleLinear()
-//                 .domain([1, 10])
-//                 .range([50, 550])
-//
-//
-// function scaleXAxisRect(startDate){
-//   return xScale(startDate)
-// }
-//
-// function scaleRectWidth(minDate, maxDate, startDate, endDate){
-//   return xScale(endDate) - xScale(startDate)
-// }
-//
-// function scaleYAxis(taskId){
-//   return yScale(taskId)
-// }
-//
-// var svg = d3.select("body").append("svg")
-//               .attr("width", w)
-//               .attr("height", h)
-//               .style("border", "1px black solid")
-//
-//
-// var graph = d3.select("svg").append("g")
-//               .attrs({
-//                 "width": (w / 4) * 3,
-//                 "height": h,
-//                 "x": 0,
-//                 "y": 0,
-//                 transform: "translate(300, 0)"
-//               })
-//               .styles({
-//                 "border": "1px blue solid"
-//               })
-//               .call(d3.zoom().on("zoom", zoom));
-//
-//
-// var rect = graph.selectAll("rect")
-//               .data(dataset)
-//               .enter()
-//               .append("rect")
-//               .attrs({
-//                 x: function(d, i) { return scaleXAxisRect(d.startDate); },
-//                 y: function(d, i) { return scaleYAxis(d.id) - 35; },
-//                 width: function(d) { return scaleRectWidth(minDate, maxDate, d.startDate, d.endDate)},
-//                 height: function(d, i){ return 50 },
-//                 fill: "rgb(124, 144, 175)",
-//                 "stroke":"rgb(64, 87, 124)",
-//                 "stroke-width":"5",
-//                 "rx": "20px",
-//                 "ry": "20px"
-//               })
-//               .styles({
-//                 "border-radius": "20px"
-//               })
-//
-//
-//
+var yScale = d3.scaleLinear()
+                .domain([1, numOfSingleTasks])
+                .range([50, 550])
+
+
+function scaleXAxisRect(tasks){
+  tasks.map( (task) => { task.startDate } )  
+  return xScale(startDate)
+}
+
+function scaleRectWidth(minDate, maxDate, startDate, endDate){ // unneeded parameters?
+  return xScale(endDate) - xScale(startDate)
+}
+
+function scaleYAxis(taskId){
+  return yScale(taskId)
+}
+
+var svg = d3.select("body").append("svg")
+              .attr("width", w)
+              .attr("height", h)
+              .style("border", "1px black solid")
+
+
+var graph = d3.select("svg").append("g")
+              .attrs({
+                "width": (w / 4) * 3,
+                "height": h,
+                "x": 0,
+                "y": 0,
+                transform: "translate(300, 0)"
+              })
+              .styles({
+                "border": "1px blue solid"
+              })
+              .call(d3.zoom().on("zoom", zoom));
+
+
+var rect = graph.selectAll("rect")
+              .data(dataset)
+              .enter()
+              .append("rect")
+              .attrs({
+                x: function(d, i) { return scaleXAxisRect(d.tasks); },
+                y: function(d, i) { return scaleYAxis(d.id) - 35; },
+                width: function(d) { return scaleRectWidth(minDate, maxDate, d.startDate, d.endDate)}, //unneeded arguments?
+                height: function(d, i){ return 50 },
+                fill: "rgb(124, 144, 175)",
+                "stroke":"rgb(64, 87, 124)",
+                "stroke-width":"5",
+                "rx": "20px",
+                "ry": "20px"
+              })
+              .styles({
+                "border-radius": "20px"
+              })
+
+
+
 // var yAxisBackground = d3.select("svg").append("rect")
 //             .attrs({
 //               "width": (w / 4) * 1,

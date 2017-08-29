@@ -5,7 +5,7 @@ dataset =  [
     startDate: new Date(2017, 0, 1),
     endDate: new Date(2017, 5, 1),
     milestone: false,
-    dependentsId: [], // consider DB relationships and how these might split up into seperate tables.
+    dependentsId: 1,
     status: "Complete"
   },
   {
@@ -14,7 +14,7 @@ dataset =  [
     startDate: new Date(2017, 1, 12),
     endDate: new Date(2017, 2, 3),
     milestone: false,
-    dependentsId: [1],
+    dependentsId: 1,
     status: "In Progress"
   },
   {
@@ -23,7 +23,7 @@ dataset =  [
     startDate: new Date(2017, 4, 12),
     endDate: new Date(2017, 4, 20),
     milestone: false,
-    dependentsId: [1, 2],
+    dependentsId: 2,
     status: "In Progress"
   },
   {
@@ -32,7 +32,7 @@ dataset =  [
     startDate: new Date(2017, 5, 11),
     endDate: new Date(2017, 11, 27),
     milestone: false,
-    dependentsId: [1, 2],
+    dependentsId: 4,
     status: "In Progress"
   },
   {
@@ -41,7 +41,7 @@ dataset =  [
     startDate: new Date(2018, 5, 11),
     endDate: new Date(2018, 11, 27),
     milestone: false,
-    dependentsId: [1, 2],
+    dependentsId: 4,
     status: "In Progress"
   },
   {
@@ -50,7 +50,7 @@ dataset =  [
     startDate: new Date(2017, 11, 1),
     endDate: new Date(2017, 11, 20),
     milestone: false,
-    dependentsId: [], // consider DB relationships and how these might split up into seperate tables.
+    dependentsId: 5,
     status: "Complete"
   },
   {
@@ -59,7 +59,7 @@ dataset =  [
     startDate: new Date(2018, 0, 1),
     endDate: new Date(2018, 2, 3),
     milestone: false,
-    dependentsId: [1],
+    dependentsId: 7,
     status: "In Progress"
   },
   {
@@ -68,7 +68,7 @@ dataset =  [
     startDate: new Date(2018, 2, 1),
     endDate: new Date(2018, 3, 20),
     milestone: false,
-    dependentsId: [1, 2],
+    dependentsId: 8,
     status: "In Progress"
   },
   {
@@ -77,7 +77,7 @@ dataset =  [
     startDate: new Date(2018, 3, 01),
     endDate: new Date(2018, 4, 27),
     milestone: false,
-    dependentsId: [1, 2],
+    dependentsId: 9,
     status: "In Progress"
   },
   {
@@ -86,7 +86,7 @@ dataset =  [
     startDate: new Date(2018, 3, 11),
     endDate: new Date(2018, 5, 27),
     milestone: false,
-    dependentsId: [1, 2],
+    dependentsId: 10,
     status: "In Progress"
   }
 ]
@@ -142,6 +142,11 @@ function scaleYAxis(taskId){
   return yScale(taskId)
 }
 
+function colorPicker(data, index){
+    return "rgb(" + (data.dependentsId * 30) + "," + (data.dependentsId * 10) +  ", 60)"
+  }
+
+
 var svg = d3.select("body").append("svg")
               .attr("width", w)
               .attr("height", h)
@@ -171,15 +176,13 @@ var rect = graph.selectAll("rect")
                 y: function(d, i) { return scaleYAxis(d.id) - 35; },
                 width: function(d) { return scaleRectWidth(minDate, maxDate, d.startDate, d.endDate)},
                 height: function(d, i){ return 50 },
-                fill: "rgb(124, 144, 175)",
+                fill: function(d, i){ return colorPicker(d, i)},
                 "stroke":"rgb(64, 87, 124)",
-                "stroke-width":"5",
-                "rx": "20px",
-                "ry": "20px"
+                "stroke-width":"3",
+                "rx": "5px",
+                "ry": "5px"
               })
-              .styles({
-                "border-radius": "20px"
-              })
+
 
 
 
@@ -273,3 +276,12 @@ function registerNewUser(e){
   }
 //  addNewTask(newTask)
 }
+
+
+// if dependents.length = 0
+// 	then choose a hex colour
+// else if(dependents.length > 0)
+// 	then use first hex number from dependent id
+//
+//
+// also arrange tasks by start finish dates
