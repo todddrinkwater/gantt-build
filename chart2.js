@@ -91,7 +91,7 @@ var yScale = d3.scaleLinear()
 
 
 function scaleXAxisRect(tasks){
-  tasks.map( (task) => { task.startDate } )  
+  tasks.map( (task) => { task.startDate } )
   return xScale(startDate)
 }
 

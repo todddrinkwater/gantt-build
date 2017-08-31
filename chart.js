@@ -38,7 +38,7 @@ dataset =  [
   {
     id: 5,
     taskName: "Task 5",
-    startDate: new Date(2018, 5, 11),
+    startDate: new Date(2017, 10, 11),
     endDate: new Date(2018, 11, 27),
     milestone: false,
     dependentsId: 4,
@@ -50,7 +50,7 @@ dataset =  [
     startDate: new Date(2017, 11, 1),
     endDate: new Date(2017, 11, 20),
     milestone: false,
-    dependentsId: 5,
+    dependentsId: 4,
     status: "Complete"
   },
   {
@@ -121,9 +121,9 @@ var xScale = d3.scaleTime()
                 .domain([minDate, maxDate])
                 .range([0, graphWidth])
 
-var yPan = 0;
-var yMin = (-h / 2);
-var yMAx = (h / 2);
+var yPan = 0; //required?
+var yMin = (-h / 2); //required?
+var yMAx = (h / 2); //required?
 
 var yScale = d3.scaleLinear()
                 .domain([1, 10])
@@ -143,9 +143,27 @@ function scaleYAxis(taskId){
 }
 
 function colorPicker(data, index){
-    return "rgb(" + (data.dependentsId * 30) + "," + (data.dependentsId * 10) +  ", 60)"
-  }
+    return "rgba(" + (data.dependentsId * 30) + "," + (data.dependentsId * 10) +  ", 60, 1)"
+}
 
+function line2X1Scale(data){
+  return xScale(data.startDate)
+}
+
+function line2X2Scale(data, dataset){
+  var dependentId = data.dependentsId
+  return xScale(dataset[dependentId - 1].startDate)
+}
+
+function lineY2Scale(data){
+  var dependentId = data.dependentsId
+  return yScale(data.dependentsId)
+}
+
+function lineXScale(data, dataset){
+  var dependentId = data.dependentsId
+  return xScale(dataset[dependentId - 1].startDate)
+}
 
 var svg = d3.select("body").append("svg")
               .attr("width", w)
@@ -179,10 +197,36 @@ var rect = graph.selectAll("rect")
                 fill: function(d, i){ return colorPicker(d, i)},
                 "stroke":"rgb(64, 87, 124)",
                 "stroke-width":"3",
-                "rx": "5px",
-                "ry": "5px"
+                "rx": "3px",
+                "ry": "3px"
               })
 
+var line = graph.selectAll("line")
+            .data(dataset)
+            .enter()
+            .append("line")
+            .attrs({
+              "stroke": "rgb(64, 87, 124)",
+              "stroke-width": "2",
+              "x1": function(d, i) { return lineXScale(d, dataset); },
+              "y1": function(d, i) { return scaleYAxis(d.id) - 5; },
+              "x2": function(d, i) { return lineXScale(d, dataset); },
+              "y2": function(d, i) { return lineY2Scale(d); }
+            })
+
+
+var line2 = graph.selectAll("line2")
+            .data(dataset)
+            .enter()
+            .append("line")
+            .attrs({
+              "stroke": "rgb(64, 87, 124)",
+              "stroke-width": "2",
+              "x1": function(d, i) { return line2X1Scale(d); },
+              "y1": function(d, i) { return scaleYAxis(d.id) - 5; },
+              "x2": function(d, i) { return line2X2Scale(d, dataset); },
+              "y2": function(d, i) { return scaleYAxis(d.id) - 5; }
+            })
 
 
 
@@ -216,6 +260,10 @@ xAxis = graph.append("g")
       .attr("transform", "translate(0, 600)")
       .call(d3.axisTop(xScale))
 
+xAxis2 = graph.append("g")
+      .attr("transform", "translate(0, 0)")
+      .call(d3.axisBottom(xScale))
+
 // return date as day-month-year
 
 function dayMonthYear(date){
@@ -248,6 +296,9 @@ function zoom() {
          .duration(0)
          .call(d3.axisTop(xScale).scale(d3.event.transform.rescaleX(xScale)));
 
+  xAxis2.transition()
+        .duration(0)
+        .call(d3.axisBottom(xScale).scale(d3.event.transform.rescaleX(xScale)));
 
    // re-draw rectangles using new x and y axis scale
    var new_xScale = d3.event.transform.rescaleX(xScale);
