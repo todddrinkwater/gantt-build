@@ -222,10 +222,10 @@ var line2 = graph.selectAll("line2")
             .attrs({
               "stroke": "rgb(64, 87, 124)",
               "stroke-width": "2",
-              "x1": function(d, i) { return line2X1Scale(d); },
-              "y1": function(d, i) { return scaleYAxis(d.id) - 5; },
-              "x2": function(d, i) { return line2X2Scale(d, dataset); },
-              "y2": function(d, i) { return scaleYAxis(d.id) - 5; }
+              "x1": function(d) { return line2X1Scale(d); },
+              "y1": function(d) { return scaleYAxis(d.id) - 5; },
+              "x2": function(d) { return line2X2Scale(d, dataset); },
+              "y2": function(d) { return scaleYAxis(d.id) - 5; }
             })
 
 
@@ -261,8 +261,9 @@ xAxis = graph.append("g")
       .call(d3.axisTop(xScale))
 
 xAxis2 = graph.append("g")
-      .attr("transform", "translate(0, 0)")
       .call(d3.axisBottom(xScale))
+
+
 
 // return date as day-month-year
 
@@ -304,10 +305,17 @@ function zoom() {
    var new_xScale = d3.event.transform.rescaleX(xScale);
    var new_yScale = d3.event.transform.rescaleY(yScale);
 
+   var newX1LineScale = d3.event.transform.rescaleX(xScale);
+
    rect
     .attr("x", function(d) { return new_xScale(d.startDate) })
     //.attr("y", function(d) { return new_yScale(d.id) - 35})
     .attr("width", function(d) { return new_xScale(d.endDate) - new_xScale(d.startDate) })
+
+    line2
+     .attr("x1", function(d) { return new_xScale(d.startDate) })
+     .attr("x2", function(d) { return new_xScale((d.startDate, dataset[d.dependentsId - 1].startDate)) })
+
 
 //   taskInfo
 //     .attr("y", function(d) { return new_yScale(d.id) })
