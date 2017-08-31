@@ -312,9 +312,14 @@ function zoom() {
     //.attr("y", function(d) { return new_yScale(d.id) - 35})
     .attr("width", function(d) { return new_xScale(d.endDate) - new_xScale(d.startDate) })
 
+    line
+    .attr("x1", function(d) { return new_xScale((d.startDate, dataset[d.dependentsId - 1].startDate)) })
+    .attr("x2", function(d) { return new_xScale((d.startDate, dataset[d.dependentsId - 1].startDate)) })
+
     line2
      .attr("x1", function(d) { return new_xScale(d.startDate) })
      .attr("x2", function(d) { return new_xScale((d.startDate, dataset[d.dependentsId - 1].startDate)) })
+
 
 
 //   taskInfo
