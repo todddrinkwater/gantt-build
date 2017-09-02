@@ -217,11 +217,11 @@ var diamond = graph.selectAll("diamond")
               .enter()
               .append("rect")
               .attrs({
-                x: function(d, i) { return scaleXAxisRect(d.endDate); },
-                y: function(d, i) { return scaleYAxis(d.id) - 20; },
+                x: function(d, i) { return scaleXAxisRect(d.endDate) + 2; },
+                y: function(d, i) { return scaleYAxis(d.id) - 10; },
                 "transform": function (d, i) {return "rotate(-45 " + scaleXAxisRect(d.endDate) + " " +  scaleYAxis(d.id) + ")"},
-                width: "20px",
-                height: "20px",
+                width: "17px",
+                height: "17px",
                 "fill": function (d){ return diamondFill(d.milestone) },
                 "stroke": function (d){ return diamondFill(d.milestone) },
                 "stroke-width":"2"
@@ -260,7 +260,7 @@ var arrowhead = graph.selectAll("arrowhead")
             .enter()
             .append("polygon")
             .attrs({
-              "points": function(d){ return "" + (scaleXAxisRect(d.startDate) - 10) + "," + (scaleYAxis(d.id) - 15) + " " + scaleXAxisRect(d.startDate) + "," + (scaleYAxis(d.id) - 6) + " " + (scaleXAxisRect(d.startDate) - 10) + "," + (scaleYAxis(d.id) + 3) + " " + (scaleXAxisRect(d.startDate) - 10) + "," + (scaleYAxis(d.id) -  1) + "" },
+              "points": function(d){ return "" + (scaleXAxisRect(d.startDate) - 10) + "," + (scaleYAxis(d.id) - 14.7) + " " + scaleXAxisRect(d.startDate) + "," + (scaleYAxis(d.id) - 5.7) + " " + (scaleXAxisRect(d.startDate) - 10) + "," + (scaleYAxis(d.id) + 3) + " " + (scaleXAxisRect(d.startDate) - 9.7) + "," + (scaleYAxis(d.id) -  1) + "" },
               "fill": function (d){ return colorArrowHead(d) },
               "stroke": function (d){ return colorArrowHead(d) },
               "stroke-width":"2"
@@ -347,6 +347,7 @@ function zoom() {
    var new_xScale = d3.event.transform.rescaleX(xScale);
    var new_yScale = d3.event.transform.rescaleY(yScale);
 
+
    var newX1LineScale = d3.event.transform.rescaleX(xScale);
 
    rect
@@ -362,10 +363,15 @@ function zoom() {
      .attr("x1", function(d) { return new_xScale(d.startDate) })
      .attr("x2", function(d) { return new_xScale((d.startDate, dataset[d.dependentsId - 1].startDate)) });
 
+     arrowhead
+     .attrs({
+       "points": function(d){ return "" + (new_xScale(d.startDate) - 10) + "," + (scaleYAxis(d.id) - 14.7) + " " + new_xScale(d.startDate) + "," + (scaleYAxis(d.id) - 5.7) + " " + (new_xScale(d.startDate) - 10) + "," + (scaleYAxis(d.id) + 3) + " " + (new_xScale(d.startDate) - 9.7) + "," + (scaleYAxis(d.id) -  1) + "" },
 
+     })
 
-//   taskInfo
-//     .attr("y", function(d) { return new_yScale(d.id) })
+    //  diamond
+    //  .attr("transform", function (d, i) { return "rotate(-45 " + scaleXAxisRect(d.endDate) + " " +  scaleYAxis(d.id) + ")" })
+    //  .attr("x", function(d) { return new_xScale(d.endDate) })
 }
 
 /* User Registration */
