@@ -22,7 +22,7 @@ dataset =  [
     taskName: "Task 3",
     startDate: new Date(2017, 4, 12),
     endDate: new Date(2017, 4, 20),
-    milestone: false,
+    milestone: true,
     dependentsId: 2,
     status: "In Progress"
   },
@@ -49,7 +49,7 @@ dataset =  [
     taskName: "Task 6",
     startDate: new Date(2017, 11, 1),
     endDate: new Date(2017, 11, 20),
-    milestone: false,
+    milestone: true,
     dependentsId: 4,
     status: "Complete"
   },
@@ -146,6 +146,14 @@ function colorPicker(data, index){
     return "rgba(" + (data.dependentsId * 30) + "," + (data.dependentsId * 10) +  ", 60, 1)"
 }
 
+function diamondFill(milestone){
+  if(milestone === true){
+    return "#3FBFBF"
+  }
+  else return "rgba(64, 200, 124, 0)"
+}
+
+
 function line2X1Scale(data){
   return xScale(data.startDate)
 }
@@ -169,6 +177,7 @@ var svg = d3.select("body").append("svg")
               .attr("width", w)
               .attr("height", h)
               .style("border", "1px black solid")
+
 
 
 var graph = d3.select("svg").append("g")
@@ -201,6 +210,24 @@ var rect = graph.selectAll("rect")
                 "ry": "3px"
               })
 
+
+
+var diamond = graph.selectAll("diamond")
+              .data(dataset)
+              .enter()
+              .append("rect")
+              .attrs({
+                x: function(d, i) { return scaleXAxisRect(d.endDate); },
+                y: function(d, i) { return scaleYAxis(d.id) - 20; },
+                "transform": function (d, i) {return "rotate(-45 " + scaleXAxisRect(d.endDate) + " " +  scaleYAxis(d.id) + ")"},
+                width: "20px",
+                height: "20px",
+                "fill": function (d){ return diamondFill(d.milestone) },
+                "stroke": function (d){ return diamondFill(d.milestone) },
+                "stroke-width":"2"
+              })
+
+
 var line = graph.selectAll("line")
             .data(dataset)
             .enter()
@@ -228,8 +255,6 @@ var line2 = graph.selectAll("line2")
               "y2": function(d) { return scaleYAxis(d.id) - 5; }
             })
 
-
-
 var yAxisBackground = d3.select("svg").append("rect")
             .attrs({
               "width": (w / 4) * 1,
@@ -239,7 +264,7 @@ var yAxisBackground = d3.select("svg").append("rect")
             })
             .styles({
               "fill": "white",
-              "stroke": "rgb(0,0,0)"
+              "stroke": "rgb(0, 0, 0)"
             });
 
 
@@ -262,7 +287,6 @@ xAxis = graph.append("g")
 
 xAxis2 = graph.append("g")
       .call(d3.axisBottom(xScale))
-
 
 
 // return date as day-month-year
@@ -310,15 +334,15 @@ function zoom() {
    rect
     .attr("x", function(d) { return new_xScale(d.startDate) })
     //.attr("y", function(d) { return new_yScale(d.id) - 35})
-    .attr("width", function(d) { return new_xScale(d.endDate) - new_xScale(d.startDate) })
+    .attr("width", function(d) { return new_xScale(d.endDate) - new_xScale(d.startDate) });
 
     line
     .attr("x1", function(d) { return new_xScale((d.startDate, dataset[d.dependentsId - 1].startDate)) })
-    .attr("x2", function(d) { return new_xScale((d.startDate, dataset[d.dependentsId - 1].startDate)) })
+    .attr("x2", function(d) { return new_xScale((d.startDate, dataset[d.dependentsId - 1].startDate)) });
 
     line2
      .attr("x1", function(d) { return new_xScale(d.startDate) })
-     .attr("x2", function(d) { return new_xScale((d.startDate, dataset[d.dependentsId - 1].startDate)) })
+     .attr("x2", function(d) { return new_xScale((d.startDate, dataset[d.dependentsId - 1].startDate)) });
 
 
 
