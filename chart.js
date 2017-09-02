@@ -255,6 +255,24 @@ var line2 = graph.selectAll("line2")
               "y2": function(d) { return scaleYAxis(d.id) - 5; }
             })
 
+var arrowhead = graph.selectAll("arrowhead")
+            .data(dataset)
+            .enter()
+            .append("polygon")
+            .attrs({
+              "points": function(d){ return "" + (scaleXAxisRect(d.startDate) - 10) + "," + (scaleYAxis(d.id) - 15) + " " + scaleXAxisRect(d.startDate) + "," + (scaleYAxis(d.id) - 6) + " " + (scaleXAxisRect(d.startDate) - 10) + "," + (scaleYAxis(d.id) + 3) + " " + (scaleXAxisRect(d.startDate) - 10) + "," + (scaleYAxis(d.id) -  1) + "" },
+              "fill": function (d){ return colorArrowHead(d) },
+              "stroke": function (d){ return colorArrowHead(d) },
+              "stroke-width":"2"
+            })
+
+function colorArrowHead(data){
+  if(data.dependentsId != data.id){
+    return "rgb(64, 87, 124)"
+  }
+  else return "rgba(0, 0, 0, 0)"
+}
+
 var yAxisBackground = d3.select("svg").append("rect")
             .attrs({
               "width": (w / 4) * 1,
