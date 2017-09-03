@@ -23,7 +23,7 @@ dataset =  [
     startDate: new Date(2017, 4, 12),
     endDate: new Date(2017, 4, 20),
     milestone: true,
-    dependentsId: 2,
+    dependentsId: 3,
     status: "In Progress"
   },
   {
@@ -50,7 +50,7 @@ dataset =  [
     startDate: new Date(2017, 11, 1),
     endDate: new Date(2017, 11, 20),
     milestone: true,
-    dependentsId: 4,
+    dependentsId: 6,
     status: "Complete"
   },
   {
@@ -143,6 +143,7 @@ function scaleYAxis(taskId){
 }
 
 function colorPicker(data, index){
+    if (data.milestone === true){ return "rgba(0, 0, 0, 0)" }
     return "rgba(" + (data.dependentsId * 30) + "," + (data.dependentsId * 10) +  ", 60, 1)"
 }
 
@@ -153,6 +154,17 @@ function diamondFill(milestone){
   else return "rgba(64, 200, 124, 0)"
 }
 
+function colorArrowHead(data){
+  if(data.dependentsId != data.id){
+    return "rgb(64, 87, 124)"
+  }
+  else return "rgba(0, 0, 0, 0)"
+}
+
+function lineColorPicker(data){
+  if(data.dependentsId != data.id) return "rgb(64, 87, 124)"
+  else return "rgba(0, 0, 0, 0)"
+}
 
 function line2X1Scale(data){
   return xScale(data.startDate)
@@ -171,6 +183,12 @@ function lineY2Scale(data){
 function lineXScale(data, dataset){
   var dependentId = data.dependentsId
   return xScale(dataset[dependentId - 1].startDate)
+}
+
+function calcRhombusPoints(startDate, id){
+  var x = xScale(startDate) - 10
+  var y = yScale(id)
+  return "" + x + "," + y + " " + (x + 10) + "," + (y - 15) + " " + (x + 20) + "," + (y) + " " + (x + 10) + "," + (y + 15) + "";
 }
 
 var svg = d3.select("body").append("svg")
@@ -204,28 +222,24 @@ var rect = graph.selectAll("rect")
                 width: function(d) { return scaleRectWidth(minDate, maxDate, d.startDate, d.endDate)},
                 height: function(d, i){ return 50 },
                 fill: function(d, i){ return colorPicker(d, i)},
-                "stroke":"rgb(64, 87, 124)",
+                "stroke": function(d, i){ return colorPicker(d, i)},
                 "stroke-width":"3",
                 "rx": "3px",
                 "ry": "3px"
               })
 
 
-
-var diamond = graph.selectAll("diamond")
+var milestone = graph.selectAll("diamond")
               .data(dataset)
               .enter()
-              .append("rect")
+              .append("polygon")
               .attrs({
-                x: function(d, i) { return scaleXAxisRect(d.endDate) + 2; },
-                y: function(d, i) { return scaleYAxis(d.id) - 10; },
-                "transform": function (d, i) {return "rotate(-45 " + scaleXAxisRect(d.endDate) + " " +  scaleYAxis(d.id) + ")"},
-                width: "17px",
-                height: "17px",
+                "points": function (d, i){ return calcRhombusPoints(d.startDate, d.id) },
                 "fill": function (d){ return diamondFill(d.milestone) },
                 "stroke": function (d){ return diamondFill(d.milestone) },
                 "stroke-width":"2"
               })
+
 
 
 var line = graph.selectAll("line")
@@ -233,7 +247,7 @@ var line = graph.selectAll("line")
             .enter()
             .append("line")
             .attrs({
-              "stroke": "rgb(64, 87, 124)",
+              "stroke": function(d){ return lineColorPicker(d) },
               "stroke-width": "2",
               "x1": function(d, i) { return lineXScale(d, dataset); },
               "y1": function(d, i) { return scaleYAxis(d.id) - 5; },
@@ -266,12 +280,7 @@ var arrowhead = graph.selectAll("arrowhead")
               "stroke-width":"2"
             })
 
-function colorArrowHead(data){
-  if(data.dependentsId != data.id){
-    return "rgb(64, 87, 124)"
-  }
-  else return "rgba(0, 0, 0, 0)"
-}
+
 
 var yAxisBackground = d3.select("svg").append("rect")
             .attrs({
@@ -348,7 +357,7 @@ function zoom() {
    var new_yScale = d3.event.transform.rescaleY(yScale);
 
 
-   var newX1LineScale = d3.event.transform.rescaleX(xScale);
+   //var newX1LineScale = d3.event.transform.rescaleX(xScale);
 
    rect
     .attr("x", function(d) { return new_xScale(d.startDate) })
@@ -365,13 +374,18 @@ function zoom() {
 
      arrowhead
      .attrs({
-       "points": function(d){ return "" + (new_xScale(d.startDate) - 10) + "," + (scaleYAxis(d.id) - 14.7) + " " + new_xScale(d.startDate) + "," + (scaleYAxis(d.id) - 5.7) + " " + (new_xScale(d.startDate) - 10) + "," + (scaleYAxis(d.id) + 3) + " " + (new_xScale(d.startDate) - 9.7) + "," + (scaleYAxis(d.id) -  1) + "" },
-
+       "points": function(d){ return "" + (new_xScale(d.startDate) - 10) + "," + (scaleYAxis(d.id) - 14.7) + " " + new_xScale(d.startDate) + "," + (scaleYAxis(d.id) - 5.7) + " " + (new_xScale(d.startDate) - 10) + "," + (scaleYAxis(d.id) + 3) + " " + (new_xScale(d.startDate) - 9.7) + "," + (scaleYAxis(d.id) -  1) + "" }
      })
 
-    //  diamond
-    //  .attr("transform", function (d, i) { return "rotate(-45 " + scaleXAxisRect(d.endDate) + " " +  scaleYAxis(d.id) + ")" })
-    //  .attr("x", function(d) { return new_xScale(d.endDate) })
+
+     milestone
+      .attrs({
+      "points": function(d){
+        var x = new_xScale(d.startDate) - 10
+        var y = scaleYAxis(d.id)
+        return "" + x + "," + y + " " + (x + 10) + "," + (y - 15) + " " + (x + 20) + "," + (y) + " " + (x + 10) + "," + (y + 15) + ""
+        }
+      })
 }
 
 /* User Registration */
@@ -388,12 +402,3 @@ function registerNewUser(e){
   }
 //  addNewTask(newTask)
 }
-
-
-// if dependents.length = 0
-// 	then choose a hex colour
-// else if(dependents.length > 0)
-// 	then use first hex number from dependent id
-//
-//
-// also arrange tasks by start finish dates
