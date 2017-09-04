@@ -47,8 +47,8 @@ dataset =  [
   {
     id: 6,
     taskName: "Task 6",
-    startDate: new Date(2017, 11, 1),
-    endDate: new Date(2017, 11, 20),
+    startDate: new Date(2018, 11, 27),
+    endDate: new Date(2018, 11, 27),
     milestone: true,
     dependentsId: 6,
     status: "Complete"
@@ -121,9 +121,6 @@ var xScale = d3.scaleTime()
                 .domain([minDate, maxDate])
                 .range([0, graphWidth])
 
-var yPan = 0; //required?
-var yMin = (-h / 2); //required?
-var yMAx = (h / 2); //required?
 
 var yScale = d3.scaleLinear()
                 .domain([1, 10])
@@ -212,6 +209,22 @@ var graph = d3.select("svg").append("g")
               .call(d3.zoom().on("zoom", zoom));
 
 
+var line = graph.selectAll("line")
+            .data(dataset)
+            .enter()
+            .append("line")
+            .attrs({
+              "stroke": function(d){ return lineColorPicker(d) },
+              "stroke-width": "2",
+              "x1": function(d, i) { return lineXScale(d, dataset); },
+              "y1": function(d, i) { return scaleYAxis(d.id) - 5; },
+              "x2": function(d, i) { return lineXScale(d, dataset); },
+              "y2": function(d, i) { return lineY2Scale(d) + 12; }
+            })
+
+
+
+
 var rect = graph.selectAll("rect")
               .data(dataset)
               .enter()
@@ -242,20 +255,6 @@ var milestone = graph.selectAll("diamond")
 
 
 
-var line = graph.selectAll("line")
-            .data(dataset)
-            .enter()
-            .append("line")
-            .attrs({
-              "stroke": function(d){ return lineColorPicker(d) },
-              "stroke-width": "2",
-              "x1": function(d, i) { return lineXScale(d, dataset); },
-              "y1": function(d, i) { return scaleYAxis(d.id) - 5; },
-              "x2": function(d, i) { return lineXScale(d, dataset); },
-              "y2": function(d, i) { return lineY2Scale(d); }
-            })
-
-
 var line2 = graph.selectAll("line2")
             .data(dataset)
             .enter()
@@ -279,7 +278,6 @@ var arrowhead = graph.selectAll("arrowhead")
               "stroke": function (d){ return colorArrowHead(d) },
               "stroke-width":"2"
             })
-
 
 
 var yAxisBackground = d3.select("svg").append("rect")
@@ -358,7 +356,6 @@ function zoom() {
 
 
    //var newX1LineScale = d3.event.transform.rescaleX(xScale);
-
    rect
     .attr("x", function(d) { return new_xScale(d.startDate) })
     //.attr("y", function(d) { return new_yScale(d.id) - 35})
@@ -376,7 +373,6 @@ function zoom() {
      .attrs({
        "points": function(d){ return "" + (new_xScale(d.startDate) - 10) + "," + (scaleYAxis(d.id) - 14.7) + " " + new_xScale(d.startDate) + "," + (scaleYAxis(d.id) - 5.7) + " " + (new_xScale(d.startDate) - 10) + "," + (scaleYAxis(d.id) + 3) + " " + (new_xScale(d.startDate) - 9.7) + "," + (scaleYAxis(d.id) -  1) + "" }
      })
-
 
      milestone
       .attrs({
