@@ -5,7 +5,7 @@ dataset =  [
     startDate: new Date(2017, 0, 1),
     endDate: new Date(2017, 5, 1),
     milestone: false,
-    dependentsId: [], // consider DB relationships and how these might split up into seperate tables.
+    dependentsId: 1,
     status: "Complete"
   },
   {
@@ -14,7 +14,7 @@ dataset =  [
     startDate: new Date(2017, 1, 12),
     endDate: new Date(2017, 2, 3),
     milestone: false,
-    dependentsId: [1],
+    dependentsId: 1,
     status: "In Progress"
   },
   {
@@ -22,8 +22,8 @@ dataset =  [
     taskName: "Task 3",
     startDate: new Date(2017, 4, 12),
     endDate: new Date(2017, 4, 20),
-    milestone: false,
-    dependentsId: [1, 2],
+    milestone: true,
+    dependentsId: 3,
     status: "In Progress"
   },
   {
@@ -32,16 +32,61 @@ dataset =  [
     startDate: new Date(2017, 5, 11),
     endDate: new Date(2017, 11, 27),
     milestone: false,
-    dependentsId: [1, 2],
+    dependentsId: 4,
     status: "In Progress"
   },
   {
     id: 5,
     taskName: "Task 5",
-    startDate: new Date(2018, 5, 11),
+    startDate: new Date(2017, 10, 11),
     endDate: new Date(2018, 11, 27),
     milestone: false,
-    dependentsId: [1, 2],
+    dependentsId: 4,
+    status: "In Progress"
+  },
+  {
+    id: 6,
+    taskName: "Task 6",
+    startDate: new Date(2018, 11, 27),
+    endDate: new Date(2018, 11, 27),
+    milestone: true,
+    dependentsId: 6,
+    status: "Complete"
+  },
+  {
+    id: 7,
+    taskName: "Task 7",
+    startDate: new Date(2018, 0, 1),
+    endDate: new Date(2018, 2, 3),
+    milestone: false,
+    dependentsId: 7,
+    status: "In Progress"
+  },
+  {
+    id: 8,
+    taskName: "Task 8",
+    startDate: new Date(2018, 2, 1),
+    endDate: new Date(2018, 3, 20),
+    milestone: false,
+    dependentsId: 8,
+    status: "In Progress"
+  },
+  {
+    id: 9,
+    taskName: "Task 9",
+    startDate: new Date(2018, 3, 01),
+    endDate: new Date(2018, 4, 27),
+    milestone: false,
+    dependentsId: 9,
+    status: "In Progress"
+  },
+  {
+    id: 10,
+    taskName: "Task 10",
+    startDate: new Date(2018, 3, 11),
+    endDate: new Date(2018, 5, 27),
+    milestone: false,
+    dependentsId: 10,
     status: "In Progress"
   }
 ]
@@ -51,6 +96,8 @@ dataset =  [
 
 var minDate = d3.extent(dataset, (d) => { return d.startDate })[0]
 var maxDate = d3.extent(dataset, (d) => { return d.endDate })[1]
+
+var maxTaskNumberId = d3.extent(dataset, (d) => { return d.id } )[1]
 
 
 // create svg and set dimensions
@@ -75,6 +122,11 @@ var xScale = d3.scaleTime()
                 .range([0, graphWidth])
 
 
+var yScale = d3.scaleLinear()
+                .domain([1, 10])
+                .range([50, 550])
+
+
 function scaleXAxisRect(startDate){
   return xScale(startDate)
 }
@@ -83,11 +135,65 @@ function scaleRectWidth(minDate, maxDate, startDate, endDate){
   return xScale(endDate) - xScale(startDate)
 }
 
+function scaleYAxis(taskId){
+  return yScale(taskId)
+}
+
+function colorPicker(data, index){
+    if (data.milestone === true){ return "rgba(0, 0, 0, 0)" }
+    return "rgba(" + (data.dependentsId * 30) + "," + (data.dependentsId * 10) +  ", 60, 1)"
+}
+
+function diamondFill(milestone){
+  if(milestone === true){
+    return "#3FBFBF"
+  }
+  else return "rgba(64, 200, 124, 0)"
+}
+
+function colorArrowHead(data){
+  if(data.dependentsId != data.id){
+    return "rgb(64, 87, 124)"
+  }
+  else return "rgba(0, 0, 0, 0)"
+}
+
+function lineColorPicker(data){
+  if(data.dependentsId != data.id) return "rgb(64, 87, 124)"
+  else return "rgba(0, 0, 0, 0)"
+}
+
+function line2X1Scale(data){
+  return xScale(data.startDate)
+}
+
+function line2X2Scale(data, dataset){
+  var dependentId = data.dependentsId
+  return xScale(dataset[dependentId - 1].startDate)
+}
+
+function lineY2Scale(data){
+  var dependentId = data.dependentsId
+  return yScale(data.dependentsId)
+}
+
+function lineXScale(data, dataset){
+  var dependentId = data.dependentsId
+  return xScale(dataset[dependentId - 1].startDate)
+}
+
+function calcRhombusPoints(startDate, id){
+  var x = xScale(startDate) - 10
+  var y = yScale(id)
+  return "" + x + "," + y + " " + (x + 10) + "," + (y - 15) + " " + (x + 20) + "," + (y) + " " + (x + 10) + "," + (y + 15) + "";
+}
+
 var svg = d3.select("body").append("svg")
               .attr("width", w)
               .attr("height", h)
               .style("border", "1px black solid")
-              .call(d3.zoom().on("zoom", zoom));
+
+
 
 var graph = d3.select("svg").append("g")
               .attrs({
@@ -100,6 +206,23 @@ var graph = d3.select("svg").append("g")
               .styles({
                 "border": "1px blue solid"
               })
+              .call(d3.zoom().on("zoom", zoom));
+
+
+var line = graph.selectAll("line")
+            .data(dataset)
+            .enter()
+            .append("line")
+            .attrs({
+              "stroke": function(d){ return lineColorPicker(d) },
+              "stroke-width": "2",
+              "x1": function(d, i) { return lineXScale(d, dataset); },
+              "y1": function(d, i) { return scaleYAxis(d.id) - 5; },
+              "x2": function(d, i) { return lineXScale(d, dataset); },
+              "y2": function(d, i) { return lineY2Scale(d) + 12; }
+            })
+
+
 
 
 var rect = graph.selectAll("rect")
@@ -108,11 +231,54 @@ var rect = graph.selectAll("rect")
               .append("rect")
               .attrs({
                 x: function(d, i) { return scaleXAxisRect(d.startDate); },
-                y: function(d, i) { return (h / dataset.length) * i; },
+                y: function(d, i) { return scaleYAxis(d.id) - 35; },
                 width: function(d) { return scaleRectWidth(minDate, maxDate, d.startDate, d.endDate)},
-                height: function(d, i){ return h / dataset.length },
-                fill: "blue"
-              });
+                height: function(d, i){ return 50 },
+                fill: function(d, i){ return colorPicker(d, i)},
+                "stroke": function(d, i){ return colorPicker(d, i)},
+                "stroke-width":"3",
+                "rx": "3px",
+                "ry": "3px"
+              })
+
+
+var milestone = graph.selectAll("diamond")
+              .data(dataset)
+              .enter()
+              .append("polygon")
+              .attrs({
+                "points": function (d, i){ return calcRhombusPoints(d.startDate, d.id) },
+                "fill": function (d){ return diamondFill(d.milestone) },
+                "stroke": function (d){ return diamondFill(d.milestone) },
+                "stroke-width":"2"
+              })
+
+
+
+var line2 = graph.selectAll("line2")
+            .data(dataset)
+            .enter()
+            .append("line")
+            .attrs({
+              "stroke": "rgb(64, 87, 124)",
+              "stroke-width": "2",
+              "x1": function(d) { return line2X1Scale(d); },
+              "y1": function(d) { return scaleYAxis(d.id) - 5; },
+              "x2": function(d) { return line2X2Scale(d, dataset); },
+              "y2": function(d) { return scaleYAxis(d.id) - 5; }
+            })
+
+var arrowhead = graph.selectAll("arrowhead")
+            .data(dataset)
+            .enter()
+            .append("polygon")
+            .attrs({
+              "points": function(d){ return "" + (scaleXAxisRect(d.startDate) - 10) + "," + (scaleYAxis(d.id) - 14.7) + " " + scaleXAxisRect(d.startDate) + "," + (scaleYAxis(d.id) - 5.7) + " " + (scaleXAxisRect(d.startDate) - 10) + "," + (scaleYAxis(d.id) + 3) + " " + (scaleXAxisRect(d.startDate) - 9.7) + "," + (scaleYAxis(d.id) -  1) + "" },
+              "fill": function (d){ return colorArrowHead(d) },
+              "stroke": function (d){ return colorArrowHead(d) },
+              "stroke-width":"2"
+            })
+
 
 var yAxisBackground = d3.select("svg").append("rect")
             .attrs({
@@ -123,8 +289,8 @@ var yAxisBackground = d3.select("svg").append("rect")
             })
             .styles({
               "fill": "white",
-              "stroke": "rgb(0,0,0)"
-            })
+              "stroke": "rgb(0, 0, 0)"
+            });
 
 
 var yAxis = d3.select("svg").append("g")
@@ -137,36 +303,16 @@ var yAxis = d3.select("svg").append("g")
             })
             .styles({
               "border": "1px blue solid"
-          });
-
-
-
-// var view = [1, 2, 3, 4, 5, 6, 7]
-
-
-// graph.selectAll("line")
-//   .data(view)
-//   .enter()
-//   .append("line")
-//   .attrs({
-//     "x1": function(d, i){ return (i / 7) * graphWidth },
-//     "y1": 0,
-//     "x2": function(d, i){ return (i / 7) * graphWidth },
-//     "y2": h,
-//     width: "1px",
-//     height: h,
-//   })
-//   .styles({
-//     "stroke-width": 2,
-//     "stroke": "red",
-//     "fill": "none"
-//   });
-
+          })
 
 
 xAxis = graph.append("g")
       .attr("transform", "translate(0, 600)")
       .call(d3.axisTop(xScale))
+
+xAxis2 = graph.append("g")
+      .call(d3.axisBottom(xScale))
+
 
 // return date as day-month-year
 
@@ -178,19 +324,21 @@ function dayMonthYear(date){
 }
 
 // set up x-axis - text labels //
-yAxis.selectAll("text")
-  .data(dataset)
-  .enter()
-  .append("text")
-  .text(function(d) { return d.taskName + " " + dayMonthYear(d.startDate) + " - " + dayMonthYear(d.endDate) })
-  .attrs({
-    "text-anchor": "start",
-    x: 0,
-    y: function(d, i) { return i * ( h / dataset.length ) + 12 },
-    "font-family": "sans-serif",
-    "font-size": 16,
-    "fill": "black"
-  })
+var taskInfo = yAxis.selectAll("text")
+    .data(dataset)
+    .enter()
+    .append("text")
+    .text(function(d) { return d.taskName + " " + dayMonthYear(d.startDate) + " - " + dayMonthYear(d.endDate) })
+    .attrs({
+      "text-anchor": "start",
+      x: 20,
+      y: function(d, i) { return scaleYAxis(d.id) },
+      "font-family": "sans-serif",
+      "font-size": 16,
+      "fill": "black",
+      width: w / 4,
+      height: 75
+    })
 
 function zoom() {
     // re-scale x axis during zoom
@@ -198,10 +346,55 @@ function zoom() {
          .duration(0)
          .call(d3.axisTop(xScale).scale(d3.event.transform.rescaleX(xScale)));
 
-   // re-draw rectangles using new x-axis scale
+  xAxis2.transition()
+        .duration(0)
+        .call(d3.axisBottom(xScale).scale(d3.event.transform.rescaleX(xScale)));
+
+   // re-draw rectangles using new x and y axis scale
    var new_xScale = d3.event.transform.rescaleX(xScale);
+   var new_yScale = d3.event.transform.rescaleY(yScale);
+
+
+   //var newX1LineScale = d3.event.transform.rescaleX(xScale);
    rect
-    .attr("x", function(d) { return  new_xScale(d.startDate) })
+    .attr("x", function(d) { return new_xScale(d.startDate) })
+    //.attr("y", function(d) { return new_yScale(d.id) - 35})
     .attr("width", function(d) { return new_xScale(d.endDate) - new_xScale(d.startDate) });
 
+    line
+    .attr("x1", function(d) { return new_xScale((d.startDate, dataset[d.dependentsId - 1].startDate)) })
+    .attr("x2", function(d) { return new_xScale((d.startDate, dataset[d.dependentsId - 1].startDate)) });
+
+    line2
+     .attr("x1", function(d) { return new_xScale(d.startDate) })
+     .attr("x2", function(d) { return new_xScale((d.startDate, dataset[d.dependentsId - 1].startDate)) });
+
+     arrowhead
+     .attrs({
+       "points": function(d){ return "" + (new_xScale(d.startDate) - 10) + "," + (scaleYAxis(d.id) - 14.7) + " " + new_xScale(d.startDate) + "," + (scaleYAxis(d.id) - 5.7) + " " + (new_xScale(d.startDate) - 10) + "," + (scaleYAxis(d.id) + 3) + " " + (new_xScale(d.startDate) - 9.7) + "," + (scaleYAxis(d.id) -  1) + "" }
+     })
+
+     milestone
+      .attrs({
+      "points": function(d){
+        var x = new_xScale(d.startDate) - 10
+        var y = scaleYAxis(d.id)
+        return "" + x + "," + y + " " + (x + 10) + "," + (y - 15) + " " + (x + 20) + "," + (y) + " " + (x + 10) + "," + (y + 15) + ""
+        }
+      })
+}
+
+/* User Registration */
+
+function registerNewUser(e){
+  var form = e.target.elements
+  e.preventDefault(e)
+  var newTask = {
+      taskName: form.taskName,
+      startDate: form.startDate,
+      endDate: form.endDate,
+      milestone: form.mileStone,
+      dependentsId: form.dependents // consider DB relationships and how these might split up into seperate tables.
+  }
+//  addNewTask(newTask)
 }
