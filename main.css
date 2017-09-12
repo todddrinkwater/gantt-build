@@ -1,21 +1,30 @@
-/*.axis path,
-.axis line {
-  fill: none;
-  stroke: black;
-  shape-rendering: crispEdges;
+body {
+  font-family: 'Quicksand', sans-serif;
 }
 
-.axis text {
-  font-family: sans-serif;
-  font-size: 10px;
-}*/
-
-.zoom {
-  cursor: move;
-  fill: none;
-  pointer-events: all;
+input[type="submit"] {
+    background-color: #5d615d
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 13px;
+    margin: 4px 2px;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    cursor: pointer;
+    border-radius: 20px;
 }
 
-.yAxis {
-  background-color: red;
+input[type="submit"]  {
+    background-color: white;
+    color: black;
+    border: 2px solid #5d615d;
+}
+
+input[type="submit"]:hover {
+    background-color: #5d615d;
+    color: white;
 }

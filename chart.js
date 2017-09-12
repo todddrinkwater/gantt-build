@@ -89,15 +89,15 @@ dataset =  [
     dependentsId: 10,
     status: "In Progress"
   }
-]
+];
 
 //Calculate the spread of the graph
   // calculate min start dates
 
-var minDate = d3.extent(dataset, (d) => { return d.startDate })[0]
-var maxDate = d3.extent(dataset, (d) => { return d.endDate })[1]
+var minDate = d3.extent(dataset, (d) => { return d.startDate })[0];
+var maxDate = d3.extent(dataset, (d) => { return d.endDate })[1];
 
-var maxTaskNumberId = d3.extent(dataset, (d) => { return d.id } )[1]
+var maxTaskNumberId = d3.extent(dataset, (d) => { return d.id } )[1];
 
 
 // create svg and set dimensions
@@ -106,17 +106,8 @@ var w = 1200;
 var h = 600;
 var tableLeft = w / 4;
 
-var today = new Date();
-var dd = today.getDate();
 
-var year = today.getFullYear();
-var month = today.getMonth();
-var day = today.getDate();
-var c = new Date(year + 1, month, day)
-//console.log(c);
-
-
-//Scale xAxis
+//Scale X-axis by date-time
 var xScale = d3.scaleTime()
                 .domain([minDate, maxDate])
                 .range([0, graphWidth])
@@ -223,8 +214,6 @@ var line = graph.selectAll("line")
             })
 
 
-
-
 var rect = graph.selectAll("rect")
               .data(dataset)
               .enter()
@@ -252,8 +241,6 @@ var milestone = graph.selectAll("diamond")
                 "stroke": function (d){ return diamondFill(d.milestone) },
                 "stroke-width":"2"
               })
-
-
 
 var line2 = graph.selectAll("line2")
             .data(dataset)
@@ -354,8 +341,6 @@ function zoom() {
    var new_xScale = d3.event.transform.rescaleX(xScale);
    var new_yScale = d3.event.transform.rescaleY(yScale);
 
-
-   //var newX1LineScale = d3.event.transform.rescaleX(xScale);
    rect
     .attr("x", function(d) { return new_xScale(d.startDate) })
     //.attr("y", function(d) { return new_yScale(d.id) - 35})
@@ -394,7 +379,7 @@ function registerNewUser(e){
       startDate: form.startDate,
       endDate: form.endDate,
       milestone: form.mileStone,
-      dependentsId: form.dependents // consider DB relationships and how these might split up into seperate tables.
+      dependentsId: form.dependents
   }
 //  addNewTask(newTask)
 }
