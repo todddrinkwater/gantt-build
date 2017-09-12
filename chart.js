@@ -99,15 +99,14 @@ var maxDate = d3.extent(dataset, (d) => { return d.endDate })[1];
 
 var maxTaskNumberId = d3.extent(dataset, (d) => { return d.id } )[1];
 
-
-// create svg and set dimensions
+// Create SVG and set dimensions
 var graphWidth = 900;
 var w = 1200;
 var h = 600;
 var tableLeft = w / 4;
 
 
-//Scale X-axis by date-time
+// Scale X-axis by date-time
 var xScale = d3.scaleTime()
                 .domain([minDate, maxDate])
                 .range([0, graphWidth])
@@ -122,7 +121,7 @@ function scaleXAxisRect(startDate){
   return xScale(startDate)
 }
 
-function scaleRectWidth(minDate, maxDate, startDate, endDate){
+function scaleRectWidth(startDate, endDate){
   return xScale(endDate) - xScale(startDate)
 }
 
@@ -130,7 +129,7 @@ function scaleYAxis(taskId){
   return yScale(taskId)
 }
 
-function colorPicker(data, index){
+function colorPicker(data){
     if (data.milestone === true){ return "rgba(0, 0, 0, 0)" }
     return "rgba(" + (data.dependentsId * 30) + "," + (data.dependentsId * 10) +  ", 60, 1)"
 }
@@ -174,9 +173,20 @@ function lineXScale(data, dataset){
 }
 
 function calcRhombusPoints(startDate, id){
-  var x = xScale(startDate) - 10
-  var y = yScale(id)
-  return "" + x + "," + y + " " + (x + 10) + "," + (y - 15) + " " + (x + 20) + "," + (y) + " " + (x + 10) + "," + (y + 15) + "";
+  var x = xScale(startDate) - 10,
+      y = yScale(id),
+      coord1 = "" + x + "," + y + " ",
+      coord2 = (x + 10) + "," + (y - 15) + " ",
+      coord3 = (x + 20) + "," + (y) + " ",
+      coord4 = (x + 10) + "," + (y + 15) + ""
+  return coord1 + coord2 + coord3 + coord4;
+}
+
+function dayMonthYear(date){
+  var day = date.getDate(),
+      month = date.getMonth() + 1,
+      year = date.getFullYear();
+  return day + "/" + month + "/" + year
 }
 
 var svg = d3.select("body").append("svg")
@@ -221,10 +231,10 @@ var rect = graph.selectAll("rect")
               .attrs({
                 x: function(d, i) { return scaleXAxisRect(d.startDate); },
                 y: function(d, i) { return scaleYAxis(d.id) - 35; },
-                width: function(d) { return scaleRectWidth(minDate, maxDate, d.startDate, d.endDate)},
+                width: function(d) { return scaleRectWidth(d.startDate, d.endDate)},
                 height: function(d, i){ return 50 },
-                fill: function(d, i){ return colorPicker(d, i)},
-                "stroke": function(d, i){ return colorPicker(d, i)},
+                fill: function(d, i){ return colorPicker(d)},
+                "stroke": function(d, i){ return colorPicker(d)},
                 "stroke-width":"3",
                 "rx": "3px",
                 "ry": "3px"
@@ -301,14 +311,7 @@ xAxis2 = graph.append("g")
       .call(d3.axisBottom(xScale))
 
 
-// return date as day-month-year
 
-function dayMonthYear(date){
-  var day = date.getDate()
-  var month = date.getMonth() + 1
-  var year = date.getFullYear()
-  return day + "/" + month + "/" + year
-}
 
 // set up x-axis - text labels //
 var taskInfo = yAxis.selectAll("text")
@@ -338,12 +341,11 @@ function zoom() {
         .call(d3.axisBottom(xScale).scale(d3.event.transform.rescaleX(xScale)));
 
    // re-draw rectangles using new x and y axis scale
-   var new_xScale = d3.event.transform.rescaleX(xScale);
-   var new_yScale = d3.event.transform.rescaleY(yScale);
+   var new_xScale = d3.event.transform.rescaleX(xScale),
+       new_yScale = d3.event.transform.rescaleY(yScale);
 
    rect
     .attr("x", function(d) { return new_xScale(d.startDate) })
-    //.attr("y", function(d) { return new_yScale(d.id) - 35})
     .attr("width", function(d) { return new_xScale(d.endDate) - new_xScale(d.startDate) });
 
     line
@@ -367,19 +369,4 @@ function zoom() {
         return "" + x + "," + y + " " + (x + 10) + "," + (y - 15) + " " + (x + 20) + "," + (y) + " " + (x + 10) + "," + (y + 15) + ""
         }
       })
-}
-
-/* User Registration */
-
-function registerNewUser(e){
-  var form = e.target.elements
-  e.preventDefault(e)
-  var newTask = {
-      taskName: form.taskName,
-      startDate: form.startDate,
-      endDate: form.endDate,
-      milestone: form.mileStone,
-      dependentsId: form.dependents
-  }
-//  addNewTask(newTask)
 }
