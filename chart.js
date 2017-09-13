@@ -100,10 +100,10 @@ var maxDate = d3.extent(dataset, (d) => { return d.endDate })[1];
 var maxTaskNumberId = d3.extent(dataset, (d) => { return d.id } )[1];
 
 // Create SVG and set dimensions
-var graphWidth = 900;
-var w = 1200;
-var h = 600;
-var tableLeft = w / 4;
+var graphWidth = 900,
+    w = 1200,
+    h = 600,
+    tableLeft = w / 4;
 
 
 // Scale X-axis by date-time
@@ -112,9 +112,12 @@ var xScale = d3.scaleTime()
                 .range([0, graphWidth])
 
 
+var lowYRange = h / 10,
+    highYRange = h / 1.07142857
+
 var yScale = d3.scaleLinear()
                 .domain([1, 10])
-                .range([60, 560])
+                .range([lowYRange, highYRange])
 
 
 function scaleXAxisRect(startDate){
