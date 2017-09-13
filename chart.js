@@ -20,7 +20,7 @@ dataset =  [
   {
     id: 3,
     taskName: "Task 3",
-    startDate: new Date(2017, 4, 12),
+    startDate: new Date(2017, 4, 20),
     endDate: new Date(2017, 4, 20),
     milestone: true,
     dependentsId: 3,
@@ -114,7 +114,7 @@ var xScale = d3.scaleTime()
 
 var yScale = d3.scaleLinear()
                 .domain([1, 10])
-                .range([50, 550])
+                .range([60, 560])
 
 
 function scaleXAxisRect(startDate){
