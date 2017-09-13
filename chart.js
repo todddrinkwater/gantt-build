@@ -174,7 +174,7 @@ function lineXScale(data, dataset){
 
 function calcRhombusPoints(startDate, id){
   var x = xScale(startDate) - 10,
-      y = yScale(id),
+      y = yScale(id) - 5,
       coord1 = "" + x + "," + y + " ",
       coord2 = (x + 10) + "," + (y - 15) + " ",
       coord3 = (x + 20) + "," + (y) + " ",
@@ -365,8 +365,12 @@ function zoom() {
       .attrs({
       "points": function(d){
         var x = new_xScale(d.startDate) - 10
-        var y = scaleYAxis(d.id)
-        return "" + x + "," + y + " " + (x + 10) + "," + (y - 15) + " " + (x + 20) + "," + (y) + " " + (x + 10) + "," + (y + 15) + ""
+        var y = scaleYAxis(d.id) - 5
+        var coord1 = "" + x + "," + y + " "
+        var coord2 = (x + 10) + "," + (y - 15) + " "
+        var coord3 = (x + 20) + "," + (y) + " "
+        var coord4 = (x + 10) + "," + (y + 15) + ""
+        return  coord1 + coord2 + coord3 + coord4
         }
       })
 }
