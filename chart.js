@@ -102,7 +102,7 @@ var maxTaskNumberId = d3.extent(dataset, (d) => { return d.id })[1];
 // Create SVG and set dimensions
 var graphWidth = 900,
     w = 1200,
-    h = 300,
+    h = 600,
     tableLeft = w / 4;
 
 
@@ -223,7 +223,7 @@ var line = graph.selectAll("line")
               "x1": function(d, i) { return lineXScale(d, dataset); },
               "y1": function(d, i) { return lineY2Scale(d); },
               "x2": function(d, i) { return lineXScale(d, dataset); },
-              "y2": function(d, i) { return scaleYAxis(d.id); }
+              "y2": function(d, i) { return scaleYAxis(d.id) - (h * 0.01666667); }
             })
 
 
@@ -263,9 +263,9 @@ var line2 = graph.selectAll("line2")
               "stroke": "rgb(64, 87, 124)",
               "stroke-width": "2",
               "x1": function(d) { return line2X1Scale(d); },
-              "y1": function(d) { return scaleYAxis(d.id) - 5; },
+              "y1": function(d) { return scaleYAxis(d.id) - (h * 0.01666667); },
               "x2": function(d) { return line2X2Scale(d, dataset); },
-              "y2": function(d) { return scaleYAxis(d.id) - 5; }
+              "y2": function(d) { return scaleYAxis(d.id) - (h * 0.01666667); }
             })
 
 var arrowhead = graph.selectAll("arrowhead")
