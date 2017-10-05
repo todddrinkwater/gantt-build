@@ -102,7 +102,7 @@ var maxTaskNumberId = d3.extent(dataset, (d) => { return d.id })[1];
 // Create SVG and set dimensions
 var graphWidth = 900,
     w = 1200,
-    h = 600,
+    h = 700,
     tableLeft = w / 4;
 
 
@@ -177,11 +177,11 @@ function lineXScale(data, dataset){
 
 function calcRhombusPoints(startDate, id){
   var x = xScale(startDate) - 10,
-      y = yScale(id) - 5,
+      y = yScale(id) - (h * 0.00833333),
       coord1 = "" + x + "," + y + " ",
-      coord2 = (x + 10) + "," + (y - 15) + " ",
-      coord3 = (x + 20) + "," + (y) + " ",
-      coord4 = (x + 10) + "," + (y + 15) + ""
+      coord2 = (x + (h * 0.01666667)) + "," + (y - (h * 0.025)) + " ",
+      coord3 = (x + (h * 0.03333333)) + "," + (y) + " ",
+      coord4 = (x + (h * 0.01666667)) + "," + (y + (h * 0.025)) + ""
   return coord1 + coord2 + coord3 + coord4;
 }
 
@@ -368,12 +368,12 @@ function zoom() {
      milestone
       .attrs({
       "points": function(d){
-        var x = new_xScale(d.startDate) - 10
-        var y = scaleYAxis(d.id) - 5
-        var coord1 = "" + x + "," + y + " "
-        var coord2 = (x + 10) + "," + (y - 15) + " "
-        var coord3 = (x + 20) + "," + (y) + " "
-        var coord4 = (x + 10) + "," + (y + 15) + ""
+        var x = new_xScale(d.startDate) - 10,
+          y = scaleYAxis(d.id) - (h * 0.00833333),
+          coord1 = "" + x + "," + y + " ",
+          coord2 = (x + (h * 0.01666667)) + "," + (y - (h * 0.025)) + " ",
+          coord3 = (x + (h * 0.03333333)) + "," + (y) + " ",
+          coord4 = (x + (h * 0.01666667)) + "," + (y + (h * 0.025)) + ""
         return  coord1 + coord2 + coord3 + coord4
         }
       })
