@@ -97,12 +97,12 @@ dataset =  [
 var minDate = d3.extent(dataset, (d) => { return d.startDate })[0];
 var maxDate = d3.extent(dataset, (d) => { return d.endDate })[1];
 
-var maxTaskNumberId = d3.extent(dataset, (d) => { return d.id } )[1];
+var maxTaskNumberId = d3.extent(dataset, (d) => { return d.id })[1];
 
 // Create SVG and set dimensions
 var graphWidth = 900,
     w = 1200,
-    h = 600,
+    h = 300,
     tableLeft = w / 4;
 
 
@@ -221,9 +221,9 @@ var line = graph.selectAll("line")
               "stroke": function(d){ return lineColorPicker(d) },
               "stroke-width": "2",
               "x1": function(d, i) { return lineXScale(d, dataset); },
-              "y1": function(d, i) { return scaleYAxis(d.id) - 5; },
+              "y1": function(d, i) { return lineY2Scale(d); },
               "x2": function(d, i) { return lineXScale(d, dataset); },
-              "y2": function(d, i) { return lineY2Scale(d) + 12; }
+              "y2": function(d, i) { return scaleYAxis(d.id); }
             })
 
 
@@ -233,9 +233,9 @@ var rect = graph.selectAll("rect")
               .append("rect")
               .attrs({
                 x: function(d, i) { return scaleXAxisRect(d.startDate); },
-                y: function(d, i) { return scaleYAxis(d.id) - 35; },
+                y: function(d, i) { return scaleYAxis(d.id) - (h * 0.05833333); },
                 width: function(d) { return scaleRectWidth(d.startDate, d.endDate)},
-                height: function(d, i){ return 50 },
+                height: function(d, i){ return h / 12 },
                 fill: function(d, i){ return colorPicker(d)},
                 "stroke": function(d, i){ return colorPicker(d)},
                 "stroke-width":"3",
