@@ -273,7 +273,8 @@ var arrowhead = graph.selectAll("arrowhead")
             .enter()
             .append("polygon")
             .attrs({
-              "points": function(d){ return "" + (scaleXAxisRect(d.startDate) - 10) + "," + (scaleYAxis(d.id) - 14.7) + " " + scaleXAxisRect(d.startDate) + "," + (scaleYAxis(d.id) - 5.7) + " " + (scaleXAxisRect(d.startDate) - 10) + "," + (scaleYAxis(d.id) + 3) + " " + (scaleXAxisRect(d.startDate) - 9.7) + "," + (scaleYAxis(d.id) -  1) + "" },
+              "points": function(d){
+                return "" + (scaleXAxisRect(d.startDate) - 10) + "," + (scaleYAxis(d.id) - (h * 0.049)) + " " + scaleXAxisRect(d.startDate) + "," + (scaleYAxis(d.id) - (h * 0.019)) + " " + (scaleXAxisRect(d.startDate) - 10) + "," + (scaleYAxis(d.id) + (h * 0.01)) + " " + (scaleXAxisRect(d.startDate) - 9.7) + "," + (scaleYAxis(d.id) -  (h * 0.00333333)) + "" },
               "fill": function (d){ return colorArrowHead(d) },
               "stroke": function (d){ return colorArrowHead(d) },
               "stroke-width":"2"
@@ -361,7 +362,7 @@ function zoom() {
 
      arrowhead
      .attrs({
-       "points": function(d){ return "" + (new_xScale(d.startDate) - 10) + "," + (scaleYAxis(d.id) - 14.7) + " " + new_xScale(d.startDate) + "," + (scaleYAxis(d.id) - 5.7) + " " + (new_xScale(d.startDate) - 10) + "," + (scaleYAxis(d.id) + 3) + " " + (new_xScale(d.startDate) - 9.7) + "," + (scaleYAxis(d.id) -  1) + "" }
+       "points": function(d){ return "" + (new_xScale(d.startDate) - 10) + "," + (scaleYAxis(d.id) - (h * 0.049)) + " " + new_xScale(d.startDate) + "," + (scaleYAxis(d.id) - (h * 0.019)) + " " + (new_xScale(d.startDate) - 10) + "," + (scaleYAxis(d.id) + (h * 0.01)) + " " + (new_xScale(d.startDate) - 9.7) + "," + (scaleYAxis(d.id) - (h * 0.00333333)) + "" }
      })
 
      milestone
