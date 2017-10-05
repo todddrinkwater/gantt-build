@@ -102,7 +102,7 @@ var maxTaskNumberId = d3.extent(dataset, (d) => { return d.id })[1];
 // Create SVG and set dimensions
 var graphWidth = 900,
     w = 1200,
-    h = 700,
+    h = 600,
     tableLeft = w / 4;
 
 
@@ -308,7 +308,7 @@ var yAxis = d3.select("svg").append("g")
 
 
 xAxis = graph.append("g")
-      .attr("transform", "translate(0, 600)")
+      .attr("transform", "translate(0," + h + ")")
       .call(d3.axisTop(xScale))
 
 xAxis2 = graph.append("g")
