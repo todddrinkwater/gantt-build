@@ -100,9 +100,9 @@ var maxDate = d3.extent(dataset, (d) => { return d.endDate })[1];
 var maxTaskNumberId = d3.extent(dataset, (d) => { return d.id })[1];
 
 // Create SVG and set dimensions
-var graphWidth = 900,
-    w = 1200,
-    h = 600,
+var w = 1200,
+    graphWidth = (w / 4) * 3,
+    h = 300,
     tableLeft = w / 4;
 
 
@@ -274,7 +274,7 @@ var arrowhead = graph.selectAll("arrowhead")
             .append("polygon")
             .attrs({
               "points": function(d){
-                return "" + (scaleXAxisRect(d.startDate) - 10) + "," + (scaleYAxis(d.id) - (h * 0.049)) + " " + scaleXAxisRect(d.startDate) + "," + (scaleYAxis(d.id) - (h * 0.019)) + " " + (scaleXAxisRect(d.startDate) - 10) + "," + (scaleYAxis(d.id) + (h * 0.01)) + " " + (scaleXAxisRect(d.startDate) - 9.7) + "," + (scaleYAxis(d.id) -  (h * 0.00333333)) + "" },
+                return "" + (scaleXAxisRect(d.startDate) - (h * 0.03333333)) + "," + (scaleYAxis(d.id) - (h * 0.040)) + " " + scaleXAxisRect(d.startDate) + "," + (scaleYAxis(d.id) - (h * 0.019)) + " " + (scaleXAxisRect(d.startDate) - (h * 0.03333333)) + "," + (scaleYAxis(d.id) + (h * 0.003)) + " " + (scaleXAxisRect(d.startDate) - (h * 0.03233333)) + "," + (scaleYAxis(d.id) -  (h * 0.00333333)) + "" },
               "fill": function (d){ return colorArrowHead(d) },
               "stroke": function (d){ return colorArrowHead(d) },
               "stroke-width":"2"
@@ -362,7 +362,7 @@ function zoom() {
 
      arrowhead
      .attrs({
-       "points": function(d){ return "" + (new_xScale(d.startDate) - 10) + "," + (scaleYAxis(d.id) - (h * 0.049)) + " " + new_xScale(d.startDate) + "," + (scaleYAxis(d.id) - (h * 0.019)) + " " + (new_xScale(d.startDate) - 10) + "," + (scaleYAxis(d.id) + (h * 0.01)) + " " + (new_xScale(d.startDate) - 9.7) + "," + (scaleYAxis(d.id) - (h * 0.00333333)) + "" }
+       "points": function(d){ return "" + (new_xScale(d.startDate) - (h * 0.03333333)) + "," + (scaleYAxis(d.id) - (h * 0.040)) + " " + new_xScale(d.startDate) + "," + (scaleYAxis(d.id) - (h * 0.019)) + " " + (new_xScale(d.startDate) - (h * 0.03333333)) + "," + (scaleYAxis(d.id) + (h * 0.003)) + " " + (new_xScale(d.startDate) - (h * 0.03233333)) + "," + (scaleYAxis(d.id) - (h * 0.00333333)) + "" }
      })
 
      milestone
