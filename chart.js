@@ -321,14 +321,17 @@ xAxis2 = graph.append("g")
       .call(d3.axisBottom(xScale))
 
 
-
+function createLabel(d){
+  if(d.milestone === true){ return "Milestone " + dayMonthYear(d.startDate) }
+  else { return d.taskName + " " + dayMonthYear(d.startDate) + " - " + dayMonthYear(d.endDate) }
+}
 
 // set up x-axis - text labels //
 var taskInfo = yAxis.selectAll("text")
     .data(dataset)
     .enter()
     .append("text")
-    .text(function(d) { return d.taskName + " " + dayMonthYear(d.startDate) + " - " + dayMonthYear(d.endDate) })
+    .text(function(d) { return createLabel(d) })
     .attrs({
       "text-anchor": "start",
       x: 20,
