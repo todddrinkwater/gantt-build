@@ -102,7 +102,7 @@ var maxTaskNumberId = d3.extent(dataset, (d) => { return d.id })[1];
 // Create SVG and set dimensions
 var w = 1200,
     graphWidth = (w / 4) * 3,
-    h = 300,
+    h = 600,
     tableLeft = w / 4;
 
 
@@ -190,6 +190,12 @@ function dayMonthYear(date){
       month = date.getMonth() + 1,
       year = date.getFullYear();
   return day + "/" + month + "/" + year
+}
+
+function calcFontSize(){
+  if((300 < h) && (h < 400)) return h * 0.04;
+  if((400 <= h) && (h < 600)) return h * 0.03;
+  if(h >= 600) return h * 0.028;
 }
 
 var svg = d3.select("body").append("svg")
@@ -328,7 +334,7 @@ var taskInfo = yAxis.selectAll("text")
       x: 20,
       y: function(d, i) { return scaleYAxis(d.id) },
       "font-family": "sans-serif",
-      "font-size": 16,
+      "font-size": function() { return calcFontSize() },
       "fill": "black",
       width: w / 4,
       height: 75
