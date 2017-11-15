@@ -20,8 +20,8 @@ dataset =  [
   {
     id: 3,
     taskName: "Task 3",
-    startDate: new Date(2017, 4, 20),
-    endDate: new Date(2017, 4, 20),
+    startDate: new Date(2017, 5, 1),
+    endDate: new Date(2017, 5, 1),
     milestone: true,
     dependentsId: 3,
     status: "In Progress"
@@ -91,6 +91,7 @@ dataset =  [
   }
 ];
 
+
 //Calculate the spread of the graph
   // calculate min start dates
 
@@ -102,7 +103,7 @@ var maxTaskNumberId = d3.extent(dataset, (d) => { return d.id })[1];
 // Create SVG and set dimensions
 var w = 1200,
     graphWidth = (w / 4) * 3,
-    h = 600,
+    h = w / 2,
     tableLeft = w / 4;
 
 
@@ -193,7 +194,7 @@ function dayMonthYear(date){
 }
 
 function calcFontSize(){
-  if((300 < h) && (h < 400)) return h * 0.04;
+  if( ((300 < h) && (h < 400)) || (w < 800)) return h * 0.04;
   if((400 <= h) && (h < 600)) return h * 0.03;
   if(h >= 600) return h * 0.028;
 }
@@ -211,13 +212,18 @@ var graph = d3.select("svg").append("g")
                 "height": h,
                 "x": 0,
                 "y": 0,
-                transform: "translate(300, 0)"
+                transform: "translate(" + (w / 4 ) + ", 0)"
               })
               .styles({
                 "border": "1px blue solid"
               })
               .call(d3.zoom().on("zoom", zoom));
 
+              //NOTE: Create tooltip div
+
+var div = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
 
 var line = graph.selectAll("line")
             .data(dataset)
@@ -247,7 +253,23 @@ var rect = graph.selectAll("rect")
                 "stroke-width":"3",
                 "rx": "3px",
                 "ry": "3px"
-              })
+              }).on("mouseover", function(d) {
+                 div.transition()
+                   .duration(200)
+                   .style("opacity", .9);
+                 div.html(d.startDate + "<br/>" + d.endDate)
+                  // .attrs({
+                  //   x: function(d, i) { return scaleXAxisRect(d.startDate); },
+                  //   y: function(d, i) { return scaleYAxis(d.id) - (h * 0.05833333); }
+                  // })
+                   .style("left", ( scaleXAxisRect(d.startDate) ) + "px")
+                   .style("top", (d3.event.pageY - 28) + "px");
+                 })
+               .on("mouseout", function(d) {
+                 div.transition()
+                   .duration(500)
+                   .style("opacity", 0);
+                 });
 
 
 var milestone = graph.selectAll("diamond")
@@ -323,7 +345,7 @@ xAxis2 = graph.append("g")
 
 function createLabel(d){
   if(d.milestone === true){ return "Milestone " + dayMonthYear(d.startDate) }
-  else { return d.taskName + " " + dayMonthYear(d.startDate) + " - " + dayMonthYear(d.endDate) }
+  else { return d.taskName /* + " " + dayMonthYear(d.startDate) + " \u2192 " + dayMonthYear(d.endDate) */ }
 }
 
 // set up x-axis - text labels //
