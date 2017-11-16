@@ -193,8 +193,12 @@ function dayMonthYear(date){
   return day + "/" + month + "/" + year
 }
 
+function textDate(date){
+  return date.toDateString()
+}
+
 function calcFontSize(){
-  if( ((300 < h) && (h < 400)) || (w < 800)) return h * 0.04;
+  if( ((300 < h) && (h < 400)) || (w < 800) ) return h * 0.04;
   if((400 <= h) && (h < 600)) return h * 0.03;
   if(h >= 600) return h * 0.028;
 }
@@ -221,9 +225,10 @@ var graph = d3.select("svg").append("g")
 
               //NOTE: Create tooltip div
 
-var div = d3.select("body").append("div")
-    .attr("class", "tooltip")
-    .style("opacity", 0);
+//NOTE: TOOL-TIP
+var tool = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
 
 var line = graph.selectAll("line")
             .data(dataset)
@@ -238,7 +243,7 @@ var line = graph.selectAll("line")
               "y2": function(d, i) { return scaleYAxis(d.id) - (h * 0.01666667); }
             })
 
-
+//NOTE: TOOL-TIP
 var rect = graph.selectAll("rect")
               .data(dataset)
               .enter()
@@ -254,16 +259,14 @@ var rect = graph.selectAll("rect")
                 "rx": "3px",
                 "ry": "3px"
               }).on("mouseover", function(d) {
-                 div.transition()
-                   .duration(200)
+                 tool.transition()
+                   .duration(500)
                    .style("opacity", .9);
-                 div.html(d.startDate + "<br/>" + d.endDate)
-                  // .attrs({
-                  //   x: function(d, i) { return scaleXAxisRect(d.startDate); },
-                  //   y: function(d, i) { return scaleYAxis(d.id) - (h * 0.05833333); }
-                  // })
-                   .style("left", ( scaleXAxisRect(d.startDate) ) + "px")
-                   .style("top", (d3.event.pageY - 28) + "px");
+                 tool.html("<strong>Task: </strong>" + d.taskName + "</br>" +
+                   "<strong>Start: </strong>" + textDate(d.startDate) + "<br/>"
+                          + "<strong>Due: </strong>" + textDate(d.endDate)  + "<br/>")
+                   .style("left", ( scaleXAxisRect(d.startDate) + 300 ) + "px")
+                   .style("top", (d3.event.pageY) + "px");
                  })
                .on("mouseout", function(d) {
                  div.transition()
@@ -281,7 +284,20 @@ var milestone = graph.selectAll("diamond")
                 "fill": function (d){ return diamondFill(d.milestone) },
                 "stroke": function (d){ return diamondFill(d.milestone) },
                 "stroke-width":"2"
-              })
+              }).on("mouseover", function(d) {
+                 tool.transition()
+                   .duration(500)
+                   .style("opacity", .9);
+                 tool.html("<strong>Milestone </strong><br/>" + textDate(d.startDate))
+                   .style("left", ( scaleXAxisRect(d.startDate) + 300 ) + "px")
+                   .style("top", (d3.event.pageY) + "px");
+                 })
+               .on("mouseout", function(d) {
+                 div.transition()
+                   .duration(500)
+                   .style("opacity", 0);
+                 });
+
 
 var line2 = graph.selectAll("line2")
             .data(dataset)
