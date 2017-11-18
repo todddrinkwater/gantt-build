@@ -91,7 +91,6 @@ dataset =  [
   }
 ];
 
-
 //Calculate the spread of the graph
   // calculate min start dates
 
@@ -272,7 +271,11 @@ var rect = graph.selectAll("rect")
                  div.transition()
                    .duration(500)
                    .style("opacity", 0);
-                 });
+                 }).call(d3.drag().on("drag", function(d) {
+                    d.endDate = xScale.invert(d3.mouse(this)[0])
+                    d3.select(this).attr("width", xScale(d.endDate))
+                    console.log("datum: " + JSON.stringify(d))
+                  }))
 
 
 var milestone = graph.selectAll("diamond")
