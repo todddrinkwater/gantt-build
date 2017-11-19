@@ -273,7 +273,7 @@ var rect = graph.selectAll("rect")
                    .style("opacity", 0);
                  }).call(d3.drag().on("drag", function(d) {
                     d.endDate = xScale.invert(d3.mouse(this)[0])
-                    d3.select(this).attr("width", xScale(d.endDate))
+                    d3.select(this).attr("width", scaleRectWidth(d.startDate, d.endDate))
                     console.log("datum: " + JSON.stringify(d))
                   }))
 
@@ -400,7 +400,12 @@ function zoom() {
 
    rect
     .attr("x", function(d) { return new_xScale(d.startDate) })
-    .attr("width", function(d) { return new_xScale(d.endDate) - new_xScale(d.startDate) });
+    .attr("width", function(d) { return new_xScale(d.endDate) - new_xScale(d.startDate) })
+    .call(d3.drag().on("drag", function(d) {
+       d.endDate = scaleRectWidth.invert(d3.mouse(this)[0])
+       d3.select(this).attr("width", scaleRectWidth(d.startDate, d.endDate))
+       console.log("datum: " + JSON.stringify(d))
+     }))
 
     line
     .attr("x1", function(d) { return new_xScale((d.startDate, dataset[d.dependentsId - 1].startDate)) })
