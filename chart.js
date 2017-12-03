@@ -101,34 +101,6 @@ var maxDate = d3.extent(dataset, (d) => { return d.endDate })[1];
 
 var maxTaskNumberId = d3.extent(dataset, (d) => { return d.id })[1];
 
-var drag_handler = d3.drag()
-    .on("start", drag_start)
-    .on("drag", drag_drag);
-
-function drag_start(){
-    // get starting location of the drag
-    // used to offset the circle
-     start_x = +d3.event.x;
-     start_y = +d3.event.y;
-}
-
-function drag_drag(d) {
-    //Get the current scale of the circle
-    //case where we haven't scaled the circle yet
-    if (this.getAttribute("transform") === null)
-    {
-        current_scale = 1;
-    }
-    //case where we have transformed the circle
-    else {
-        current_scale_string = this.getAttribute("transform").split(' ')[1];
-        current_scale = +current_scale_string.substring(6,current_scale_string.length-1);
-    }
-      d3.select(this)
-        .attr("cx", d.x = start_x + ((d3.event.x - start_x) / current_scale) )
-        .attr("cy", d.y = start_y + ((d3.event.y - start_y) / current_scale));
-}
-
 // Create SVG and set dimensions
 var w = 1200,
     graphWidth = (w / 4) * 3,
@@ -270,8 +242,6 @@ var line = graph.selectAll("line")
               "y2": function(d, i) { return scaleYAxis(d.id) - (h * 0.01666667); }
             })
 
-// var start_x, start_y;
-
 var rect = graph.selectAll("rect")
               .data(dataset)
               .enter()
@@ -306,34 +276,9 @@ var rect = graph.selectAll("rect")
                    d3.select(this).attr("width", scaleRectWidth(d.startDate, d.endDate))
                    console.log("datum: " + JSON.stringify(d))
                  })
-                //  .on("drag", drag_drag)
                 )
 
-// function drag_start(){
-//     // get starting location of the drag
-//     // used to offset the circle
-//      start_x = +d3.event.x;
-//      start_y = +d3.event.y;
-// }
 
-// function drag_drag(d) {
-//     //Get the current scale of the circle
-//     //case where we haven't scaled the circle yet
-//     if (this.getAttribute("transform") === null)
-//     {
-//         current_scale = 1;
-//     }
-//     //case where we have transformed the circle
-//     else {
-//         current_scale_string = this.getAttribute("transform").split(' ')[1];
-//         current_scale = +current_scale_string.substring(6,current_scale_string.length-1);
-//     }
-//       d3.select(this)
-//         .attr("x", d.x = start_x + ((d3.event.x - start_x) / current_scale) )
-//         .attr("y", d.y = start_y + ((d3.event.y - start_y) / current_scale));
-// }
-
-// console.log(drag_handler(rect));
 
 var milestone = graph.selectAll("diamond")
               .data(dataset)
@@ -356,7 +301,9 @@ var milestone = graph.selectAll("diamond")
                  div.transition()
                    .duration(500)
                    .style("opacity", 0);
-                 });
+                 }).call(d3.drag().on("drag", function(d) {
+                   d.startDate = xScale.invert(d3.mouse(this)[0])
+                 }));
 
 
 var line2 = graph.selectAll("line2")
