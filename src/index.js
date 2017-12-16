@@ -1,4 +1,4 @@
-import dataset from './dataset.js'
+import dataset from './data/dataset.js'
 
 //Calculate the spread of the graph
   // calculate min start dates
@@ -127,7 +127,7 @@ var graph = d3.select("svg").append("g")
               .call(d3.zoom().on("zoom", zoom));
 
 //NOTE: TOOL-TIP
-var tool = d3.select("body").append("div")
+var tooltip = d3.select("body").append("div")
             .attr("class", "tooltip")
             .style("opacity", 0);
 
@@ -159,10 +159,10 @@ var rect = graph.selectAll("rect")
                 "rx": "3px",
                 "ry": "3px"
               }).on("mouseover", function(d) {
-                 tool.transition()
+                 tooltip.transition()
                    .duration(500)
                    .style("opacity", .9);
-                 tool.html("<strong>Task: </strong>" + d.taskName + "</br>" +
+                 tooltip.html("<strong>Task: </strong>" + d.taskName + "</br>" +
                    "<strong>Start: </strong>" + textDate(d.startDate) + "<br/>"
                           + "<strong>Due: </strong>" + textDate(d.endDate)  + "<br/>")
                    .style("left", ( scaleXAxisRect(d.startDate) + 300 ) + "px")
@@ -179,10 +179,10 @@ var rect = graph.selectAll("rect")
                    console.log("datum: " + JSON.stringify(d))
 
                    // reload the tooltips on drag - could refactor this into a method as it is reused multiple times.
-                   tool.transition()
+                   tooltip.transition()
                      .duration(500)
                      .style("opacity", .9);
-                   tool.html("<strong>Task: </strong>" + d.taskName + "</br>" +
+                   tooltip.html("<strong>Task: </strong>" + d.taskName + "</br>" +
                       "<strong>Start: </strong>" + textDate(d.startDate) + "<br/>"
                             + "<strong>Due: </strong>" + textDate(d.endDate)  + "<br/>")
                      .style("left", ( scaleXAxisRect(d.startDate) + 300 ) + "px")
@@ -200,10 +200,10 @@ var milestone = graph.selectAll("diamond")
                 "stroke": function (d){ return diamondFill(d.milestone) },
                 "stroke-width":"2"
               }).on("mouseover", function(d) {
-                 tool.transition()
+                 tooltip.transition()
                    .duration(500)
                    .style("opacity", .9);
-                 tool.html("<strong>Milestone </strong><br/>" + textDate(d.startDate))
+                 tooltip.html("<strong>Milestone </strong><br/>" + textDate(d.startDate))
                    .style("left", ( scaleXAxisRect(d.startDate) + 300 ) + "px")
                    .style("top", (d3.event.pageY) + "px");
                  })
@@ -216,10 +216,10 @@ var milestone = graph.selectAll("diamond")
                    d3.select(this).attr("points", calcRhombusPoints(d.startDate, d.id))
 
                    // reload the tooltips on drag - could refactor this into a method as it is reused multiple times.
-                   tool.transition()
+                   tooltip.transition()
                      .duration(500)
                      .style("opacity", .9);
-                   tool.html("<strong>Task: </strong>" + d.taskName + "</br>" +
+                   tooltip.html("<strong>Task: </strong>" + d.taskName + "</br>" +
                       "<strong>Start: </strong>" + textDate(d.startDate) + "<br/>"
                             + "<strong>Due: </strong>" + textDate(d.endDate)  + "<br/>")
                      .style("left", (scaleXAxisRect(d.startDate) + 300 ) + "px")
@@ -327,10 +327,10 @@ function zoom() {
         .style("opacity", 0);
       })
       .call(d3.drag().on("drag", function(d) {
-        tool.transition()
+        tooltip.transition()
           .duration(500)
           .style("opacity", .9);
-        tool.html("<strong>Task: </strong>" + d.taskName + "</br>" +
+        tooltip.html("<strong>Task: </strong>" + d.taskName + "</br>" +
            "<strong>Start: </strong>" + textDate(d.startDate) + "<br/>"
                  + "<strong>Due: </strong>" + textDate(d.endDate)  + "<br/>")
           .style("left", (scaleXAxisRect(d.startDate) + 300 ) + "px")
@@ -368,10 +368,10 @@ function zoom() {
         return  coord1 + coord2 + coord3 + coord4
         }
       }).call(d3.drag().on("drag", function(d) {
-        tool.transition()
+        tooltip.transition()
           .duration(500)
           .style("opacity", .9);
-        tool.html("<strong>Task: </strong>" + d.taskName + "</br>" +
+        tooltip.html("<strong>Task: </strong>" + d.taskName + "</br>" +
            "<strong>Start: </strong>" + textDate(d.startDate) + "<br/>"
                  + "<strong>Due: </strong>" + textDate(d.endDate)  + "<br/>")
           .style("left", (scaleXAxisRect(d.startDate) + 300 ) + "px")
@@ -388,10 +388,10 @@ function zoom() {
           return  coord1 + coord2 + coord3 + coord4
           })
       })).on("mouseover", function(d) {
-         tool.transition()
+         tooltip.transition()
            .duration(500)
            .style("opacity", .9);
-         tool.html("<strong>Milestone </strong><br/>" + textDate(d.startDate))
+         tooltip.html("<strong>Milestone </strong><br/>" + textDate(d.startDate))
            .style("left", ( scaleXAxisRect(d.startDate) + 300 ) + "px")
            .style("top", (d3.event.pageY) + "px");
          })
