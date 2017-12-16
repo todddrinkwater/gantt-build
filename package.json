@@ -1,0 +1,29 @@
+{
+  "name": "gantt-build",
+  "version": "1.0.0",
+  "description": "To run: Clone down repo by:  - Selecting the green 'clone or download' button on the right hand side of the page.  - Copy the url address presented.  - Open terminal and type 'git clone <urladdress>'  - Open the gantt-build directory or folder.  - Select and open the 'index.html' file.",
+  "main": "chart.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "babel src -d lib",
+    "start": "webpack-dev-server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/todddrinkwater/gantt-build.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/todddrinkwater/gantt-build/issues"
+  },
+  "homepage": "https://github.com/todddrinkwater/gantt-build#readme",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1"
+  }
+}
