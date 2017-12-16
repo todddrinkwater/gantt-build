@@ -1,6 +1,4 @@
-// Create handler to keep track of change in scale when zooming in or out so the mouse knows the correct coordinates.
-
-dataset =  [
+dataset = [
   {
     id: 1,
     taskName: "Task 1",
@@ -119,7 +117,6 @@ var yScale = d3.scaleLinear()
                 .domain([1, 10])
                 .range([lowYRange, highYRange])
 
-
 function scaleXAxisRect(startDate){
   return xScale(startDate)
 }
@@ -207,8 +204,6 @@ var svg = d3.select("body").append("svg")
               .attr("height", h)
               .style("border", "1px black solid")
 
-
-
 var graph = d3.select("svg").append("g")
               .attrs({
                 "width": (w / 4) * 3,
@@ -221,8 +216,6 @@ var graph = d3.select("svg").append("g")
                 "border": "1px blue solid"
               })
               .call(d3.zoom().on("zoom", zoom));
-
-              //NOTE: Create tooltip div
 
 //NOTE: TOOL-TIP
 var tool = d3.select("body").append("div")
@@ -275,10 +268,18 @@ var rect = graph.selectAll("rect")
                    d.endDate = xScale.invert(d3.mouse(this)[0])
                    d3.select(this).attr("width", scaleRectWidth(d.startDate, d.endDate))
                    console.log("datum: " + JSON.stringify(d))
+
+                   // reload the tooltips on drag - could refactor this into a method as it is reused multiple times.
+                   tool.transition()
+                     .duration(500)
+                     .style("opacity", .9);
+                   tool.html("<strong>Task: </strong>" + d.taskName + "</br>" +
+                      "<strong>Start: </strong>" + textDate(d.startDate) + "<br/>"
+                            + "<strong>Due: </strong>" + textDate(d.endDate)  + "<br/>")
+                     .style("left", ( scaleXAxisRect(d.startDate) + 300 ) + "px")
+                     .style("top", (d3.event.pageY) + "px");
                  })
                 )
-
-
 
 var milestone = graph.selectAll("diamond")
               .data(dataset)
@@ -303,8 +304,18 @@ var milestone = graph.selectAll("diamond")
                    .style("opacity", 0);
                  }).call(d3.drag().on("drag", function(d) {
                    d.startDate = xScale.invert(d3.mouse(this)[0])
-                 }));
+                   d3.select(this).attr("points", calcRhombusPoints(d.startDate, d.id))
 
+                   // reload the tooltips on drag - could refactor this into a method as it is reused multiple times.
+                   tool.transition()
+                     .duration(500)
+                     .style("opacity", .9);
+                   tool.html("<strong>Task: </strong>" + d.taskName + "</br>" +
+                      "<strong>Start: </strong>" + textDate(d.startDate) + "<br/>"
+                            + "<strong>Due: </strong>" + textDate(d.endDate)  + "<br/>")
+                     .style("left", (scaleXAxisRect(d.startDate) + 300 ) + "px")
+                     .style("top", (d3.event.pageY) + "px");
+                 }));
 
 var line2 = graph.selectAll("line2")
             .data(dataset)
@@ -331,7 +342,6 @@ var arrowhead = graph.selectAll("arrowhead")
               "stroke-width":"2"
             })
 
-
 var yAxisBackground = d3.select("svg").append("rect")
             .attrs({
               "width": (w / 4) * 1,
@@ -343,7 +353,6 @@ var yAxisBackground = d3.select("svg").append("rect")
               "fill": "white",
               "stroke": "rgb(0, 0, 0)"
             });
-
 
 var yAxis = d3.select("svg").append("g")
             .attrs({
@@ -357,14 +366,12 @@ var yAxis = d3.select("svg").append("g")
               "border": "1px blue solid"
           })
 
-
 xAxis = graph.append("g")
       .attr("transform", "translate(0," + h + ")")
       .call(d3.axisTop(xScale))
 
 xAxis2 = graph.append("g")
       .call(d3.axisBottom(xScale))
-
 
 function createLabel(d){
   if(d.milestone === true){ return "Milestone " + dayMonthYear(d.startDate) }
@@ -411,6 +418,15 @@ function zoom() {
         .style("opacity", 0);
       })
       .call(d3.drag().on("drag", function(d) {
+        tool.transition()
+          .duration(500)
+          .style("opacity", .9);
+        tool.html("<strong>Task: </strong>" + d.taskName + "</br>" +
+           "<strong>Start: </strong>" + textDate(d.startDate) + "<br/>"
+                 + "<strong>Due: </strong>" + textDate(d.endDate)  + "<br/>")
+          .style("left", (scaleXAxisRect(d.startDate) + 300 ) + "px")
+          .style("top", (d3.event.pageY) + "px");
+
         d.endDate = new_xScale.invert(d3.mouse(this)[0])
         d3.select(this).attr("width", function(d) { return new_xScale(d.endDate) - new_xScale(d.startDate) })
         console.log("datum: " + JSON.stringify(d))
@@ -442,5 +458,36 @@ function zoom() {
           coord4 = (x + (h * 0.01666667)) + "," + (y + (h * 0.025)) + ""
         return  coord1 + coord2 + coord3 + coord4
         }
-      })
+      }).call(d3.drag().on("drag", function(d) {
+        tool.transition()
+          .duration(500)
+          .style("opacity", .9);
+        tool.html("<strong>Task: </strong>" + d.taskName + "</br>" +
+           "<strong>Start: </strong>" + textDate(d.startDate) + "<br/>"
+                 + "<strong>Due: </strong>" + textDate(d.endDate)  + "<br/>")
+          .style("left", (scaleXAxisRect(d.startDate) + 300 ) + "px")
+          .style("top", (d3.event.pageY) + "px");
+
+        d.startDate = new_xScale.invert(d3.mouse(this)[0])
+        d3.select(this).attr("points", function(d){
+          var x = new_xScale(d.startDate) - 10,
+            y = scaleYAxis(d.id) - (h * 0.00833333),
+            coord1 = "" + x + "," + y + " ",
+            coord2 = (x + (h * 0.01666667)) + "," + (y - (h * 0.025)) + " ",
+            coord3 = (x + (h * 0.03333333)) + "," + (y) + " ",
+            coord4 = (x + (h * 0.01666667)) + "," + (y + (h * 0.025)) + ""
+          return  coord1 + coord2 + coord3 + coord4
+          })
+      })).on("mouseover", function(d) {
+         tool.transition()
+           .duration(500)
+           .style("opacity", .9);
+         tool.html("<strong>Milestone </strong><br/>" + textDate(d.startDate))
+           .style("left", ( scaleXAxisRect(d.startDate) + 300 ) + "px")
+           .style("top", (d3.event.pageY) + "px");
+         })
+       .on("mouseout", function(d) {
+         div.transition()
+           .duration(500)
+           .style("opacity", 0)});
 }
