@@ -98,7 +98,7 @@ function dayMonthYear(date){
   return day + "/" + month + "/" + year
 }
 
-function textDate(date){
+function convertDateToString(date){
   return date.toDateString()
 }
 
@@ -106,6 +106,17 @@ function calcFontSize(){
   if( ((300 < h) && (h < 400)) || (w < 800) ) return h * 0.04;
   if((400 <= h) && (h < 600)) return h * 0.03;
   if(h >= 600) return h * 0.028;
+}
+
+function rectTooltipInformation(d) {
+  return "<strong>Task: </strong>" + d.taskName + "</br>" +
+  "<strong>Start: </strong>" + convertDateToString(d.startDate) + "<br/>" +
+  "<strong>Due: </strong>" + convertDateToString(d.endDate)  + "<br/>"
+}
+
+function milestoneTooltipInformation(d){
+  return "<strong>Milestone </strong>" + d.taskName + "</br>" +
+  "<strong>Complete: </strong>" + convertDateToString(d.startDate) + "<br/>"
 }
 
 var svg = d3.select("body").append("svg")
@@ -126,7 +137,6 @@ var graph = d3.select("svg").append("g")
               })
               .call(d3.zoom().on("zoom", zoom));
 
-//NOTE: TOOL-TIP
 var tooltip = d3.select("body").append("div")
             .attr("class", "tooltip")
             .style("opacity", 0);
@@ -162,9 +172,7 @@ var rect = graph.selectAll("rect")
                  tooltip.transition()
                    .duration(500)
                    .style("opacity", .9);
-                 tooltip.html("<strong>Task: </strong>" + d.taskName + "</br>" +
-                   "<strong>Start: </strong>" + textDate(d.startDate) + "<br/>"
-                          + "<strong>Due: </strong>" + textDate(d.endDate)  + "<br/>")
+                 tooltip.html(rectTooltipInformation(d))
                    .style("left", ( scaleXAxisRect(d.startDate) + 300 ) + "px")
                    .style("top", (d3.event.pageY) + "px");
                  })
@@ -182,13 +190,11 @@ var rect = graph.selectAll("rect")
                    tooltip.transition()
                      .duration(500)
                      .style("opacity", .9);
-                   tooltip.html("<strong>Task: </strong>" + d.taskName + "</br>" +
-                      "<strong>Start: </strong>" + textDate(d.startDate) + "<br/>"
-                            + "<strong>Due: </strong>" + textDate(d.endDate)  + "<br/>")
-                     .style("left", ( scaleXAxisRect(d.startDate) + 300 ) + "px")
+                   tooltip.html(rectTooltipInformation(d))
                      .style("top", (d3.event.pageY) + "px");
                  })
                 )
+
 
 var milestone = graph.selectAll("diamond")
               .data(dataset)
@@ -203,7 +209,7 @@ var milestone = graph.selectAll("diamond")
                  tooltip.transition()
                    .duration(500)
                    .style("opacity", .9);
-                 tooltip.html("<strong>Milestone </strong><br/>" + textDate(d.startDate))
+                 tooltip.html(milestoneTooltipInformation(d))
                    .style("left", ( scaleXAxisRect(d.startDate) + 300 ) + "px")
                    .style("top", (d3.event.pageY) + "px");
                  })
@@ -219,9 +225,7 @@ var milestone = graph.selectAll("diamond")
                    tooltip.transition()
                      .duration(500)
                      .style("opacity", .9);
-                   tooltip.html("<strong>Task: </strong>" + d.taskName + "</br>" +
-                      "<strong>Start: </strong>" + textDate(d.startDate) + "<br/>"
-                            + "<strong>Due: </strong>" + textDate(d.endDate)  + "<br/>")
+                   tooltip.html(milestoneTooltipInformation(d))
                      .style("left", (scaleXAxisRect(d.startDate) + 300 ) + "px")
                      .style("top", (d3.event.pageY) + "px");
                  }));
@@ -330,9 +334,7 @@ function zoom() {
         tooltip.transition()
           .duration(500)
           .style("opacity", .9);
-        tooltip.html("<strong>Task: </strong>" + d.taskName + "</br>" +
-           "<strong>Start: </strong>" + textDate(d.startDate) + "<br/>"
-                 + "<strong>Due: </strong>" + textDate(d.endDate)  + "<br/>")
+        tooltip.html(rectTooltipInformation(d))
           .style("left", (scaleXAxisRect(d.startDate) + 300 ) + "px")
           .style("top", (d3.event.pageY) + "px");
 
@@ -371,10 +373,7 @@ function zoom() {
         tooltip.transition()
           .duration(500)
           .style("opacity", .9);
-        tooltip.html("<strong>Task: </strong>" + d.taskName + "</br>" +
-           "<strong>Start: </strong>" + textDate(d.startDate) + "<br/>"
-                 + "<strong>Due: </strong>" + textDate(d.endDate)  + "<br/>")
-          .style("left", (scaleXAxisRect(d.startDate) + 300 ) + "px")
+        tooltip.html(milestoneTooltipInformation(d))
           .style("top", (d3.event.pageY) + "px");
 
         d.startDate = new_xScale.invert(d3.mouse(this)[0])
@@ -391,7 +390,7 @@ function zoom() {
          tooltip.transition()
            .duration(500)
            .style("opacity", .9);
-         tooltip.html("<strong>Milestone </strong><br/>" + textDate(d.startDate))
+         tooltip.html(milestoneTooltipInformation(d))
            .style("left", ( scaleXAxisRect(d.startDate) + 300 ) + "px")
            .style("top", (d3.event.pageY) + "px");
          })
