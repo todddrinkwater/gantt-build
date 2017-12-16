@@ -119,6 +119,11 @@ function milestoneTooltipInformation(d){
   "<strong>Complete: </strong>" + convertDateToString(d.startDate) + "<br/>"
 }
 
+function createLabel(d){
+  if(d.milestone === true){ return "Milestone " + dayMonthYear(d.startDate) }
+  else { return d.taskName /* + " " + dayMonthYear(d.startDate) + " \u2192 " + dayMonthYear(d.endDate) */ }
+}
+
 var svg = d3.select("body").append("svg")
               .attr("width", w)
               .attr("height", h)
@@ -182,7 +187,12 @@ var rect = graph.selectAll("rect")
                    .style("opacity", 0);
                  }).call(d3.drag().on("drag", function(d) {
                    console.log("Event -->", d3.event.x);
-                   d.endDate = xScale.invert(d3.mouse(this)[0])
+                  //  d.endDate = xScale.invert(d3.mouse(this)[0])
+
+                   if(xScale.invert(d3.mouse(this)[0]) > d.startDate){
+                    d.endDate = xScale.invert(d3.mouse(this)[0])
+                   }
+
                    d3.select(this).attr("width", scaleRectWidth(d.startDate, d.endDate))
                    console.log("datum: " + JSON.stringify(d))
 
@@ -194,7 +204,6 @@ var rect = graph.selectAll("rect")
                      .style("top", (d3.event.pageY) + "px");
                  })
                 )
-
 
 var milestone = graph.selectAll("diamond")
               .data(dataset)
@@ -286,10 +295,6 @@ var xAxis = graph.append("g")
 var xAxis2 = graph.append("g")
       .call(d3.axisBottom(xScale))
 
-function createLabel(d){
-  if(d.milestone === true){ return "Milestone " + dayMonthYear(d.startDate) }
-  else { return d.taskName /* + " " + dayMonthYear(d.startDate) + " \u2192 " + dayMonthYear(d.endDate) */ }
-}
 
 // set up x-axis - text labels //
 var taskInfo = yAxis.selectAll("text")
@@ -309,7 +314,6 @@ var taskInfo = yAxis.selectAll("text")
     })
 
 function zoom() {
-    // re-scale x axis during zoom
    xAxis.transition()
          .duration(0)
          .call(d3.axisTop(xScale).scale(d3.event.transform.rescaleX(xScale)));
@@ -343,8 +347,6 @@ function zoom() {
         console.log("datum: " + JSON.stringify(d))
       }))
 
-// Issue, rects do not rescale or adjust in zoom. Therefore I cannot drag to the correct date.
-
     line
     .attr("x1", function(d) { return new_xScale((d.startDate, dataset[d.dependentsId - 1].startDate)) })
     .attr("x2", function(d) { return new_xScale((d.startDate, dataset[d.dependentsId - 1].startDate)) });
@@ -358,38 +360,35 @@ function zoom() {
        "points": function(d){ return "" + (new_xScale(d.startDate) - (h * 0.03333333)) + "," + (scaleYAxis(d.id) - (h * 0.040)) + " " + new_xScale(d.startDate) + "," + (scaleYAxis(d.id) - (h * 0.019)) + " " + (new_xScale(d.startDate) - (h * 0.03333333)) + "," + (scaleYAxis(d.id) + (h * 0.003)) + " " + (new_xScale(d.startDate) - (h * 0.03233333)) + "," + (scaleYAxis(d.id) - (h * 0.00333333)) + "" }
      })
 
+     function milestoneZoomCoordinates(d){
+       var x = new_xScale(d.startDate) - 10,
+         y = scaleYAxis(d.id) - (h * 0.00833333),
+         coord1 = "" + x + "," + y + " ",
+         coord2 = (x + (h * 0.01666667)) + "," + (y - (h * 0.025)) + " ",
+         coord3 = (x + (h * 0.03333333)) + "," + (y) + " ",
+         coord4 = (x + (h * 0.01666667)) + "," + (y + (h * 0.025)) + ""
+       return  coord1 + coord2 + coord3 + coord4
+     }
+
      milestone
       .attrs({
-      "points": function(d){
-        var x = new_xScale(d.startDate) - 10,
-          y = scaleYAxis(d.id) - (h * 0.00833333),
-          coord1 = "" + x + "," + y + " ",
-          coord2 = (x + (h * 0.01666667)) + "," + (y - (h * 0.025)) + " ",
-          coord3 = (x + (h * 0.03333333)) + "," + (y) + " ",
-          coord4 = (x + (h * 0.01666667)) + "," + (y + (h * 0.025)) + ""
-        return  coord1 + coord2 + coord3 + coord4
-        }
+      "points": function(d){ return milestoneZoomCoordinates(d) }
       }).call(d3.drag().on("drag", function(d) {
         tooltip.transition()
           .duration(500)
-          .style("opacity", .9);
-        tooltip.html(milestoneTooltipInformation(d))
-          .style("top", (d3.event.pageY) + "px");
+          .style("opacity", .9)
+
+        tooltip
+          .html(milestoneTooltipInformation(d))
+          .style("top", (d3.event.pageY) + "px")
 
         d.startDate = new_xScale.invert(d3.mouse(this)[0])
-        d3.select(this).attr("points", function(d){
-          var x = new_xScale(d.startDate) - 10,
-            y = scaleYAxis(d.id) - (h * 0.00833333),
-            coord1 = "" + x + "," + y + " ",
-            coord2 = (x + (h * 0.01666667)) + "," + (y - (h * 0.025)) + " ",
-            coord3 = (x + (h * 0.03333333)) + "," + (y) + " ",
-            coord4 = (x + (h * 0.01666667)) + "," + (y + (h * 0.025)) + ""
-          return  coord1 + coord2 + coord3 + coord4
-          })
+        d3.select(this).attr("points", function(d){ return milestoneZoomCoordinates(d) })
       })).on("mouseover", function(d) {
          tooltip.transition()
            .duration(500)
-           .style("opacity", .9);
+           .style("opacity", .9)
+
          tooltip.html(milestoneTooltipInformation(d))
            .style("left", ( scaleXAxisRect(d.startDate) + 300 ) + "px")
            .style("top", (d3.event.pageY) + "px");
